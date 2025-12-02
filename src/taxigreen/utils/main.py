@@ -1,5 +1,6 @@
 from map import Map
 from place import Place, PlaceType
+from Graph import bfs
 
 
 def main():
@@ -131,16 +132,30 @@ def main():
     map_graph.add_edge("R13", "R19", 1)
 
     # ---------- Teste rápido ----------
-    print("Nós criados (primeiros 10):")
-    for p in map_graph.places[:10]:
-        print(f"ID: {p.get_id():2d}  |  Nome: {p.get_name()}")
+    # print("Nós criados (primeiros 10):")
+    # for p in map_graph.places[:10]:
+    #     print(f"ID: {p.get_id():2d}  |  Nome: {p.get_name()}")
 
-    print("\nGrafo (primeiras linhas):")
-    print(map_graph)
+    # print("\nGrafo (primeiras linhas):")
+    # print(map_graph)
 
-    print("\nTodas as arestas:")
-    print(map_graph.imprime_aresta())
+    # print("\nTodas as arestas:")
+    # print(map_graph.imprime_aresta())
 
+    # testar bfs
+    origem = "R3"
+    destino = "G5"
+    
+    print(f"\n--- A testar BFS de {origem} para {destino} ---")
+    
+    caminho_resultado = bfs(map_graph, origem, destino)
+    
+    if caminho_resultado:
+        print("✅ Sucesso! Caminho encontrado:")
+        print(caminho_resultado)
+    else:
+        print("❌ Caminho não encontrado.")
+    # -------------
 
 if __name__ == "__main__":
     main()
