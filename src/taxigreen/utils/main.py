@@ -1,5 +1,6 @@
 from map import Map
 from place import Place, PlaceType
+from src.taxigreen.search.Graph import bfs
 from src.taxigreen.search.DFS import dfs_search
 
 
@@ -131,8 +132,34 @@ def main():
     map_graph.add_edge("R13", "R8", 2.45)
     map_graph.add_edge("R13", "R19", 3.75)
 
-    return map_graph
+    # ---------- Teste rápido ----------
+    # print("Nós criados (primeiros 10):")
+    # for p in map_graph.places[:10]:
+    #     print(f"ID: {p.get_id():2d}  |  Nome: {p.get_name()}")
 
+    # print("\nGrafo (primeiras linhas):")
+    # print(map_graph)
+
+    # print("\nTodas as arestas:")
+    # print(map_graph.imprime_aresta())
+
+    # testar bfs
+    
+    # origem = "R3"
+    # destino = "G5"
+    
+    # print(f"\n--- A testar BFS de {origem} para {destino} ---")
+    
+    # caminho_resultado = bfs(map_graph, origem, destino)
+    
+    # if caminho_resultado:
+        # print("✅ Sucesso! Caminho encontrado:")
+        # print(caminho_resultado)
+    # else:
+        # print("❌ Caminho não encontrado.")
+    # -------------
+    
+    return map_graph
 
 
 if __name__ == "__main__":
