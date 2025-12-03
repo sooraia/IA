@@ -1,6 +1,6 @@
 from map import Map
 from place import Place, PlaceType
-from Graph import bfs
+from taxigreen.search.Graph import bfs
 
 
 def main():
