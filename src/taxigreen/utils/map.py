@@ -46,7 +46,7 @@ class Map:
     def get_neighbours(self, place: Place):
         return self.graph.get(place, [])
 
-    def add_edge(self, name1: str, name2: str, cost: int):
+    def add_edge(self, name1: str, name2: str, cost: float):
         p1 = self.get_place(name1)
         p2 = self.get_place(name2)
         if p1 is None or p2 is None:
@@ -59,6 +59,7 @@ class Map:
     def add_place(self, place_type: PlaceType):
         new_place = Place(placeType=place_type)
         seq = 0
+        lista = []
 
         # calcular número sequencial (começa em 1)
         if place_type == PlaceType.RECOLHA_DE_PASSAGEIROS:
