@@ -1,6 +1,6 @@
 from collections import deque
 
-def bfs(mapa, start_name, end_name):
+def bfs_search(mapa, start_name, end_name):
     # Converter as strings em objetos 'Place'
     start = mapa.get_place(start_name)
     end = mapa.get_place(end_name)

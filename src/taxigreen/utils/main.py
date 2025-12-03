@@ -1,7 +1,14 @@
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
 from map import Map
 from place import Place, PlaceType
-from src.taxigreen.search.Graph import bfs
-from src.taxigreen.search.DFS import dfs_search
+from search.BFS import bfs_search
+from search.DFS import dfs_search
+
 
 
 def main():
@@ -143,21 +150,6 @@ def main():
     # print("\nTodas as arestas:")
     # print(map_graph.imprime_aresta())
 
-    # testar bfs
-    
-    # origem = "R3"
-    # destino = "G5"
-    
-    # print(f"\n--- A testar BFS de {origem} para {destino} ---")
-    
-    # caminho_resultado = bfs(map_graph, origem, destino)
-    
-    # if caminho_resultado:
-        # print("✅ Sucesso! Caminho encontrado:")
-        # print(caminho_resultado)
-    # else:
-        # print("❌ Caminho não encontrado.")
-    # -------------
     
     return map_graph
 
@@ -167,14 +159,27 @@ if __name__ == "__main__":
 
     map_graph_instance = main()
 
-    print("\n--- Teste de Busca em Profundidade (DFS) de R1 para E3 ---")
-    caminho_encontrado = dfs_search(map_graph_instance, "R1", "E3")
 
-    if caminho_encontrado:
-        print(f"caminho: {caminho_encontrado}")
-        print(f"O custo total deste caminho é: {map_graph_instance.calc_total_cost(caminho_encontrado)}")
+    caminho_encontrado1 = dfs_search(map_graph_instance, "R1", "E3")
+    caminho_encontrado2 = bfs_search(map_graph_instance, "R1", "E3")
+
+    if caminho_encontrado1:
+        print("\n--- Teste de Busca em Profundidade (DFS) de R1 para E3 ---")
+        print(f"caminho do DFS: {caminho_encontrado1}")
+        print(f"O custo total deste caminho é: {map_graph_instance.calc_total_cost(caminho_encontrado1)}")
+
     else:
         print("Caminho de R1 para E3 não encontrado.")
+
+    if caminho_encontrado2:
+        print("\n--- Teste de Busca em Profundidade (BFS) de R1 para E3 ---")
+        print(f"caminho do BFS: {caminho_encontrado2}")
+        #print(f"O custo total deste caminho é: {map_graph_instance.calc_total_cost(caminho_encontrado2)}")
+    
+    else:
+        print("Caminho de R1 para E3 não encontrado.")
+
+
 
 
 """if __name__ == "__main__":
