@@ -4,8 +4,8 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-from map import Map
-from place import Place, PlaceType
+from graph.map import Map
+from graph.place import Place, PlaceType
 from search.BFS import bfs_search
 from search.DFS import dfs_search
 
