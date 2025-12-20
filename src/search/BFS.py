@@ -1,45 +1,52 @@
 from collections import deque
+from time import process_time
+from graph.map import Map
+from search.SearchResult import SearchResult
 
-def bfs_search(mapa, start_name, end_name):
+def bfs_search(map: Map, start_name: str, end_name: str) -> SearchResult:
+    start_time = process_time()
     # Converter as strings em objetos 'Place'
-    start = mapa.get_place(start_name)
-    end = mapa.get_place(end_name)
-
+    start = map.get_place(start_name)
+    end = map.get_place(end_name)
     # verificar se os nodos existem no grafo
     if start is None or end is None:
-        return None
+        time_taken = process_time() - start_time
+        return SearchResult(None, 0, set(), time_taken) # set() cria um conjunto vazio q n pode ter duplicados
     
     # se o inicio é igual ao fim
     if start == end:
-        return [start]
+        time_taken = process_time() - start_time
+        return SearchResult([start], 0, {start}, time_taken) # {start} cria um conjunto com o node start
     
     # criar a fila para guardar os nós que vamos visitar
-    fila = deque()
-    fila.append([start])
+    queue = deque()
+    queue.append([start])
 
     # guardar o caminho
     visited = set()
     visited.add(start)
 
-    while fila: # enquanto a fila nao estiver vazia
+    while queue: # enquanto a fila nao estiver vazia
         # Retira o primeiro caminho da fila (FIFO)
-        caminho = fila.popleft()
-        nodo_atual = caminho[-1] # Último nodo do caminho
+        path = queue.popleft()
+        current_node = path[-1] # Último nodo do caminho
         
         # Explorar os vizinhos do nodo atual
-        for (vizinho, custo) in mapa.get_neighbours(nodo_atual):
-            if vizinho not in visited:
+        for (neighbor, cost) in map.get_neighbours(current_node):
+            if neighbor not in visited:
                 # Criar novo caminho incluindo o vizinho
-                novo_caminho = caminho + [vizinho]
+                new_path = path + [neighbor]
 
                 # Se chegámos ao destino, retornar o caminho
-                if vizinho == end:
-                    return novo_caminho
+                if neighbor == end:
+                    total_cost = map.calc_total_cost(new_path)
+                    time_taken = process_time() - start_time
+                    return SearchResult(new_path, total_cost, visited, time_taken)
                 
                 # Adicionar o novo caminho à fila e marcar como visitado
-                fila.append(novo_caminho)
-                visited.add(vizinho)
-
+                queue.append(new_path)
+                visited.add(neighbor)
     # Se nao encontrou caminho
-    return None
+    time_taken = process_time() - start_time
+    return SearchResult(None, 0, visited, time_taken)
                 

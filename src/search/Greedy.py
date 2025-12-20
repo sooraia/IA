@@ -1,6 +1,11 @@
-def greedy_search(mapa, start_name, end_name):
-    start = mapa.get_place(start_name)
-    end = mapa.get_place(end_name)
+from time import process_time
+from graph.map import Map
+from search.SearchResult import SearchResult
+
+def greedy_search(map: Map, start_name: str, end_name: str) -> SearchResult:
+    start_time = process_time()
+    start = map.get_place(start_name)
+    end = map.get_place(end_name)
 
     open_list = set([start])     #lista de nós visitados mas com vizinhos não visitados
     visited_list = set([])          #lista de nós visitados
@@ -17,8 +22,8 @@ def greedy_search(mapa, start_name, end_name):
                 n = v
         
         if n == None:
-            print("Path does not exist")
-            return None
+            time_taken = process_time() - start_time
+            return SearchResult(None, 0, visited_list, time_taken)
         
         # se chegámos ao destino
         if n == end:
@@ -33,9 +38,11 @@ def greedy_search(mapa, start_name, end_name):
 
             reconst_path.reverse() # inverte para ficar Inicio -> Fim
             
-            return (reconst_path, mapa.calc_total_cost(reconst_path))
+            total_cost = map.calc_total_cost(reconst_path)
+            time_taken = process_time() - start_time
+            return SearchResult(reconst_path, total_cost, visited_list, time_taken)
         
-        for (m, weight) in mapa.get_neighbours(n):
+        for (m, weight) in map.get_neighbours(n):
             if m not in open_list and m not in visited_list:
                 open_list.add(m)
                 parents[m] = n
@@ -43,5 +50,5 @@ def greedy_search(mapa, start_name, end_name):
         open_list.remove(n)
         visited_list.add(n)
 
-    print("Path does not exist")
-    return None
+    time_taken = process_time() - start_time
+    return SearchResult(None, 0, visited_list, time_taken)
