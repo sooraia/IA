@@ -2,7 +2,7 @@ from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
 
-def a_star_search(map_graph: Map, start_name, target_name) -> SearchResult:
+def a_star_search(map_graph: Map, start_name, target_name, heuristic_func) -> SearchResult:
     start_time = process_time()
 
     start = map_graph.get_place(start_name)
@@ -10,7 +10,7 @@ def a_star_search(map_graph: Map, start_name, target_name) -> SearchResult:
     g = {}
     g[start] = 0
     
-    open_list = set([start])     #lista de nós visitados mas com vizinhoa não visitados
+    open_list = set([start])     #lista de nós visitados mas com vizinhos não visitados
     closed_list = set([])          #lista de nós visitados
     
     parents = {}
@@ -20,7 +20,7 @@ def a_star_search(map_graph: Map, start_name, target_name) -> SearchResult:
         n = None
         
         for v in open_list:
-            if n == None or g[v] + heuristic(v, target, vehicle) < g[n] + heuristic(n, target, vehicle):
+            if n == None or g[v] + heuristic_func(v, target) < g[n] + heuristic_func(n, target):
                 n = v
                 
         if n == None:
