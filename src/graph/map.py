@@ -1,6 +1,6 @@
 # map.py
 from .place import Place, PlaceType
-from src.utils import distancia_euclidiana
+from src.utils import distancia_euclidiana, distancia_manhattan
 
 class Map:
     def __init__(self):
@@ -25,40 +25,38 @@ class Map:
     def imprime_aresta(self):
         s = ""
         for node, lista in self.graph.items():
-            for vizinho, custo in lista:
-                s += f"{node} -> {vizinho}  custo: {custo}\n"
+            for vizinho in lista:
+                s += f"{node} -> {vizinho}\n"
         return s
 
     def get_nodes(self):
         return self.places
 
-    def get_street_cost(self, node1: Place, node2: Place):
-        for viz, cost in self.graph[node1]:
-            if viz == node2:
-                return cost
-        return float('inf')
+    def get_street_distance(self, node1: Place, node2: Place):
+        return distancia_manhattan(node1, node2)
 
-    def calc_total_cost(self, caminho):
+    def calc_total_distance(self, caminho):
         total = 0
         for i in range(len(caminho)-1):
-            total += self.get_street_cost(caminho[i], caminho[i+1])
+            total += self.get_street_distance(caminho[i], caminho[i+1])
         return total
 
     def get_neighbours(self, place: Place):
         return self.graph.get(place, [])
 
-    def add_edge(self, name1: str, name2: str, cost: float):
+    def add_edge(self, name1: str, name2: str):
         p1 = self.get_place(name1)
         p2 = self.get_place(name2)
         if p1 is None or p2 is None:
             print(f"Aviso: nó não encontrado -> {name1}-{name2}")
             return
 
-        self.graph[p1].append((p2, cost))
-        self.graph[p2].append((p1, cost))   # grafo não-direcionado
+        # store neighbour without explicit cost (cost will be computed when needed)
+        self.graph[p1].append(p2)
+        self.graph[p2].append(p1)   # grafo não-direcionado
 
-    def add_place(self, place_type: PlaceType):
-        new_place = Place(placeType=place_type)
+    def add_place(self, place_type: PlaceType, coord):
+        new_place = Place(place_type, coord)
         seq = 0
         lista = []
 

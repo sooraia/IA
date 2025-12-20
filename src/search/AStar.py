@@ -41,10 +41,11 @@ def a_star_search(map_graph: Map, start_name, target_name, heuristic_func) -> Se
             print('Custo do caminho: {}'.format(map_graph.calc_total_cost(reconst_path)))
             
             time_taken = process_time() - start_time
-            total_cost = map_graph.calc_total_cost(reconst_path)
+            total_cost = map_graph.calc_total_distance(reconst_path)
             return SearchResult(reconst_path, total_cost, closed_list, time_taken)
 
-        for (m, weight) in map_graph.get_neighbours(n):
+        for m in map_graph.get_neighbours(n):
+            weight = map_graph.get_street_distance(m,n)
             if m not in open_list and m not in closed_list:
                 open_list.add(m)
                 parents[m] = n

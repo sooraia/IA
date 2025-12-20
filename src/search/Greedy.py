@@ -2,7 +2,7 @@ from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
 
-def greedy_search(map: Map, start_name: str, end_name: str) -> SearchResult:
+def greedy_search(map: Map, start_name: str, end_name: str, heuristic) -> SearchResult:
     start_time = process_time()
     start = map.get_place(start_name)
     end = map.get_place(end_name)
@@ -38,11 +38,11 @@ def greedy_search(map: Map, start_name: str, end_name: str) -> SearchResult:
 
             reconst_path.reverse() # inverte para ficar Inicio -> Fim
             
-            total_cost = map.calc_total_cost(reconst_path)
+            total_cost = map.calc_total_distance(reconst_path)
             time_taken = process_time() - start_time
             return SearchResult(reconst_path, total_cost, visited_list, time_taken)
         
-        for (m, weight) in map.get_neighbours(n):
+        for m in map.get_neighbours(n):
             if m not in open_list and m not in visited_list:
                 open_list.add(m)
                 parents[m] = n
