@@ -161,7 +161,7 @@ if __name__ == "__main__":
 
 
     caminho_encontrado1 = dfs_search(map_graph_instance, "R1", "E3")
-    caminho_encontrado2 = bfs_search(map_graph_instance, "R1", "E3")
+    resultado_bfs = bfs_search(map_graph_instance, "R1", "E3")
 
     if caminho_encontrado1:
         print("\n--- Teste de Busca em Profundidade (DFS) de R1 para E3 ---")
@@ -171,13 +171,20 @@ if __name__ == "__main__":
     else:
         print("Caminho de R1 para E3 não encontrado.")
 
-    if caminho_encontrado2:
-        print("\n--- Teste de Busca em Profundidade (BFS) de R1 para E3 ---")
-        print(f"caminho do BFS: {caminho_encontrado2}")
-        print(f"O custo total deste caminho é: {map_graph_instance.calc_total_cost(caminho_encontrado2)}")
-    
+
+
+    print("\n--- Teste de Busca em Largura (BFS) de R1 para E3 ---")
+    if resultado_bfs.path is not None:
+        # Converter objetos para nomes
+        nomes_bfs = [p.get_name() for p in resultado_bfs.path]
+        
+        print(f"Caminho: {nomes_bfs}")
+        print(f"Distância Total: {resultado_bfs.distance}")
+        print(f"Tempo de Execução: {resultado_bfs.time_taken:.6f} segundos")
+        print(f"Nós visitados: {len(resultado_bfs.visited)}")
     else:
-        print("Caminho de R1 para E3 não encontrado.")
+        print("BFS: Caminho não encontrado.")
+        print(f"Tempo gasto: {resultado_bfs.time_taken:.6f} segundos")
 
 
 

@@ -1,17 +1,23 @@
 from collections import deque
+from time import process_time
+from graph.map import Map
+from search.SearchResult import SearchResult
 
-def bfs_search(mapa, start_name, end_name):
+def bfs_search(mapa: Map, start_name, end_name) -> SearchResult:
+    start_time = process_time()
     # Converter as strings em objetos 'Place'
     start = mapa.get_place(start_name)
     end = mapa.get_place(end_name)
 
     # verificar se os nodos existem no grafo
     if start is None or end is None:
-        return None
+        time_taken = process_time() - start_time
+        return SearchResult(None, 0, set(), time_taken) # set() cria um conjunto vazio q n pode ter duplicados
     
     # se o inicio é igual ao fim
     if start == end:
-        return [start]
+        time_taken = process_time() - start_time
+        return SearchResult([start], 0, {start}, time_taken) # {start} cria um conjunto com o node start
     
     # criar a fila para guardar os nós que vamos visitar
     fila = deque()
@@ -34,12 +40,15 @@ def bfs_search(mapa, start_name, end_name):
 
                 # Se chegámos ao destino, retornar o caminho
                 if vizinho == end:
-                    return novo_caminho
+                    custo_total = mapa.calc_total_cost(novo_caminho)
+                    time_taken = process_time() - start_time
+                    return SearchResult(novo_caminho, custo_total, visited, time_taken)
                 
                 # Adicionar o novo caminho à fila e marcar como visitado
                 fila.append(novo_caminho)
                 visited.add(vizinho)
 
     # Se nao encontrou caminho
-    return None
+    time_taken = process_time() - start_time
+    return SearchResult(None, 0, visited, time_taken)
                 
