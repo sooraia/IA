@@ -1,6 +1,6 @@
 
 def distancia_manhattan(place1, place2):
-    return abs(place1.x - place2.x) + abs(place1.y - place2.y)
+    return abs(place1.coord[0] - place2.coord[0]) + abs(place1.coord[1] - place2.coord[1])
 
 def distancia_euclidiana(place1, place2):
-    return ((place1.x - place2.x)**2 + (place1.y - place2.y)**2) ** (1/2)
+    return ((place1.coord[0] - place2.coord[0])**2 + (place1.coord[1] - place2.coord[1])**2) ** (1/2)

@@ -32,14 +32,14 @@ def bfs_search(map: Map, start_name: str, end_name: str) -> SearchResult:
         current_node = path[-1] # Último nodo do caminho
         
         # Explorar os vizinhos do nodo atual
-        for (neighbor, cost) in map.get_neighbours(current_node):
+        for neighbor in map.get_neighbours(current_node):
             if neighbor not in visited:
                 # Criar novo caminho incluindo o vizinho
                 new_path = path + [neighbor]
 
                 # Se chegámos ao destino, retornar o caminho
                 if neighbor == end:
-                    total_cost = map.calc_total_cost(new_path)
+                    total_cost = map.calc_total_distance(new_path)
                     time_taken = process_time() - start_time
                     return SearchResult(new_path, total_cost, visited, time_taken)
                 
