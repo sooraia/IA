@@ -1,5 +1,5 @@
 # map.py
-from place import Place, PlaceType
+from .place import Place, PlaceType
 
 class Map:
     def __init__(self):

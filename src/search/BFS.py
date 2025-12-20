@@ -11,7 +11,7 @@ def bfs_search(mapa, start_name, end_name):
     
     # se o inicio é igual ao fim
     if start == end:
-        return [start_name]
+        return [start]
     
     # criar a fila para guardar os nós que vamos visitar
     fila = deque()
@@ -34,7 +34,7 @@ def bfs_search(mapa, start_name, end_name):
 
                 # Se chegámos ao destino, retornar o caminho
                 if vizinho == end:
-                    return [p.get_name() for p in novo_caminho]
+                    return novo_caminho
                 
                 # Adicionar o novo caminho à fila e marcar como visitado
                 fila.append(novo_caminho)

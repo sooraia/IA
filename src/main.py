@@ -174,7 +174,7 @@ if __name__ == "__main__":
     if caminho_encontrado2:
         print("\n--- Teste de Busca em Profundidade (BFS) de R1 para E3 ---")
         print(f"caminho do BFS: {caminho_encontrado2}")
-        #print(f"O custo total deste caminho é: {map_graph_instance.calc_total_cost(caminho_encontrado2)}")
+        print(f"O custo total deste caminho é: {map_graph_instance.calc_total_cost(caminho_encontrado2)}")
     
     else:
         print("Caminho de R1 para E3 não encontrado.")
