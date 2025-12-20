@@ -11,6 +11,15 @@ class Place:
         self.placeType = placeType
         self.name = ""
         self.id = -1
+        self.set_max_veiculos()
+
+    def set_max_veiculos(self):
+        if self.placeType == PlaceType.POSTO_DE_ABASTECIMENTO:
+            self.max_veiculos = 4
+            self.current_veiculos = 0
+        elif self.placeType == PlaceType.ESTACAO_DE_CARGA:
+            self.max_veiculos = 2
+            self.current_veiculos = 0
 
     def __str__(self):
         return f"node {self.name}"

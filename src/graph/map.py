@@ -1,5 +1,6 @@
 # map.py
 from .place import Place, PlaceType
+from src.utils import distancia_euclidiana
 
 class Map:
     def __init__(self):
@@ -78,3 +79,23 @@ class Map:
         self.places.append(new_place)
         lista.append(new_place)
         self.graph[new_place] = []               # inicializa lista de vizinhos
+
+    def posto_mais_proximo(self, origem: str, tipo: PlaceType) -> Place:
+        local_origem = self.get_place(origem)
+        estacoes = []
+        if tipo == PlaceType.POSTO_DE_ABASTECIMENTO:
+            estacoes = self.postos_abastecimento
+        elif tipo == PlaceType.ESTACAO_DE_CARGA:
+            estacoes = self.postos_carregamento
+
+        posto_mais_prox = None
+        distancia_minima = float('inf')
+
+        for estacao in estacoes:
+            if estacao.current_veiculos +1 <= estacao.max_veiculos:
+                distancia = distancia_euclidiana(local_origem.get_id(), estacao.get_id())
+                if distancia < distancia_minima:
+                    distancia_minima = distancia
+                    posto_mais_prox = estacao
+
+        return posto_mais_prox

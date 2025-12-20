@@ -2,6 +2,9 @@ from dataclasses import dataclass
 import datetime
 from enum import Enum
 
+velocidade_media = 40  # km/h
+timeout_rejeicao_pedido = datetime.timedelta(hours=1)
+
 class TipoVeiculo(Enum):
     ELETRICO = "eletrico"
     COMBUSTAO = "combustao"
@@ -54,7 +57,21 @@ class Veiculo:
     
     def __hash__(self) -> int:
         return hash(self.id)
+    
+    def atender_pedido(self, path, pedido):
+        pedido.estado = EstadoPedido.ATRIBUIDO
+        self.estado = EstadoVeiculo.OCUPADO
+        # ...
+        pedido.estado = EstadoPedido.EM_TRANSPORTE
+        #...
 
+        pedido.estado = EstadoPedido.CONCLUIDO
+
+    def abastecer(self, path):
+        self.estado = EstadoVeiculo.ABASTECER
+        # ...
+        self.autonomia_atual = self.autonomia_max
+        self.estado = EstadoVeiculo.DISPONIVEL
 
 @dataclass
 class Pedido:
@@ -70,6 +87,24 @@ class Pedido:
     def __hash__(self) -> int:
         return hash(self.id)
 
+    def prioridade_valor(self) -> int:
+        if self.prioridade == PrioridadePedido.NORMAL:
+            return 1
+        elif self.prioridade == PrioridadePedido.PREMIUM:
+            return 2
+        elif self.prioridade == PrioridadePedido.URGENTE:
+            return 3
+        return 0
+    
+    def verificar_tempo_rejeicao(self) -> bool:
+        if self.horario_pretendido + timeout_rejeicao_pedido < datetime.datetime.now():
+            self.estado = EstadoPedido.REJEITADO
+            return True
+        return False
+    
+    def tempo_ate_timeout(self) -> datetime.timedelta:
+        horario_timeout = self.horario_pretendido + timeout_rejeicao_pedido
+        return horario_timeout - datetime.datetime.now()
 
     
     

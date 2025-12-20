@@ -1,12 +1,17 @@
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
-from src.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, EstadoPedido
+from src.domain.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, EstadoPedido, velocidade_media
+from src.utils import distancia_manhattan, distancia_euclidiana
+from threading import Thread
+from graph.map import Map
+from graph.place import PlaceType
 
 @dataclass
 class Estado:
     tempo_atual: float
     veiculos: List[Veiculo]
     pedidos: List[Pedido]
+    mapa: Map
     
     # Métricas acumuladas para cálculo do custo
     custo_operacional_acumulado: float = 0.0
@@ -52,3 +57,83 @@ class Estado:
     def clone(self) -> 'Estado':
         import copy
         return copy.deepcopy(self)
+    
+    def posto_mais_proximo(self, tipo_veiculo: TipoVeiculo, localizacao_atual: str) -> str:
+        if tipo_veiculo == TipoVeiculo.ELETRICO:
+            posto = self.mapa.posto_mais_proximo(localizacao_atual, PlaceType.ESTACAO_DE_CARGA)
+        else:
+            posto = self.mapa.posto_mais_proximo(localizacao_atual, PlaceType.POSTO_DE_ABASTECIMENTO)
+        return posto.get_name()
+
+    def get_veiculos_possiveis(self, pedido: Pedido, veiculos_disponiveis: List[Veiculo]) -> List[Veiculo]:
+        veiculos_possiveis = []
+        for veiculo in veiculos_disponiveis:
+            distancia_min = distancia_euclidiana(veiculo.localizacao, pedido.localizacao_origem) + distancia_euclidiana(pedido.localizacao_origem, pedido.localizacao_destino) # limite inferior oara a distancia
+            if veiculo.pode_atender_pedido(
+                pedido.numero_passageiros,
+                distancia= distancia_min,
+                preferencia_ambiental=pedido.preferencia_ambiental
+            ):
+                veiculos_possiveis.append(veiculo)
+        return veiculos_possiveis
+
+    def heuristica_atribuicao_pedidos(self, veiculo, pedido):
+        dist = self.distancia_euclidiana(veiculo.localizacao, pedido.localizacao_origem) + self.distancia_euclidiana(pedido.localizacao_origem, pedido.localizacao_destino)
+
+        tempo_estimado = dist / velocidade_media #horas
+        return (
+            1.0 * dist +
+            2.0 * tempo_estimado
+        )
+
+    # Função principal para atualizar o estado do sistema: atribuição de pedidos e gestão dos veículos
+    # O argumento algoritmo_procura é uma o algoritmo escolhido para implementar a procura da melhor rota no grafo
+    def atualizar_estado(self, algoritmo_procura): 
+        pedidos_pendentes = [p for p in self.pedidos if p.estado == EstadoPedido.PENDENTE]
+        veiculos_disponiveis = [v for v in self.veiculos if v.estado == EstadoVeiculo.DISPONIVEL]
+
+        for p in pedidos_pendentes:
+            if p.verificar_tempo_rejeicao():
+                self.pedidos_rejeitados += 1
+
+        pedidos_pendentes.sort(key= lambda p: p.tempo_ate_timeout())  # ordenar por tempo até timeout (< primeiro)
+        pedidos_pendentes.sort(key= lambda p:p.prioriedade_valor(), reverse=True)  # ordenar por prioridade (> primeiro)
+
+        # Atribuir pedidos
+        if len(pedidos_pendentes) > 0:
+            for pedido in pedidos_pendentes:
+                veiculos_possiveis = self.get_veiculos_possiveis(pedido, veiculos_disponiveis)
+
+                if len(veiculos_possiveis) > 0:
+                    veiculos_possiveis.sort(key = lambda v: self.heuristica_atribuicao_pedidos(v, pedido))
+
+                    for veiculo in veiculos_possiveis:
+                        r1 = algoritmo_procura(self.mapa, veiculo.localizacao, pedido.localizacao_destino) # rota local atual -> local origem pedido
+                        r2 = algoritmo_procura(self.mapa, pedido.localizacao_destino, pedido.localizacao_origem) # rota local origem pedido -> local destino pedido
+
+                        if r1 is not None and r2 is not None:
+                            # autonomia de reserva estimada necessaria para deslocação para estacao de recarga após atendimento do pedido
+                            posto = self.posto_mais_proximo(veiculo.tipo, pedido.localizacao_origem)
+                            autonomia_reserva = distancia_manhattan(pedido.localizacao_destino, posto)
+                            if (r1.distanca + r2.distancia + autonomia_reserva) <= veiculo.autonomia_atual:
+                                veiculos_disponiveis.remove(veiculo)
+                                Thread(target=veiculo.atender_pedido, args=(r1.path, r2.path, pedido,)).start()
+                                break
+        
+        # Verificar necessidade de recarga/abastecimento
+        for veiculo in self.veiculos:
+            if veiculo.estado == EstadoVeiculo.DISPONIVEL:
+                if veiculo.autonomia_atual < (0.2* veiculo.autonomia_max):
+                    estacao = self.posto_mais_proximo(veiculo.tipo, veiculo.localizacao)
+                    results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao)
+                    if results is not None:
+                        Thread(target=veiculo.abastecer(), args=(results.path,)).start()
+            
+
+    def run(self, algoritmo_procura):
+        while True:
+            self.atualizar_estado(algoritmo_procura)
+
+                    
+                    
+
