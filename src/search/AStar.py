@@ -1,10 +1,10 @@
-import heapq
-import time
+from time import process_time
+from graph.map import Map
+from search.SearchResult import SearchResult
 
-from ia2526.src.graph.map import Map
+def a_star_search(map_graph: Map, start_name, target_name) -> SearchResult:
+    start_time = process_time()
 
-
-def a_star_search(map_graph: Map, start_name, target_name):
     start = map_graph.get_place(start_name)
     target = map_graph.get_place(target_name)
     g = {}
@@ -20,13 +20,13 @@ def a_star_search(map_graph: Map, start_name, target_name):
         n = None
         
         for v in open_list:
-            "FUNÇÃO DE HEURISTICA AQUI"
-            if n == None or g[v] + v.getH() < g[n] + n.getH():
+            if n == None or g[v] + heuristic(v, target, vehicle) < g[n] + heuristic(n, target, vehicle):
                 n = v
                 
         if n == None:
             print("Path does not exist!")
-            return None
+            time_taken = process_time() - start_time
+            return SearchResult(None, 0, closed_list, time_taken)
         
         if n == target:
             reconst_path = []
@@ -39,7 +39,10 @@ def a_star_search(map_graph: Map, start_name, target_name):
             
             print('Caminho encontrado: {}'.format(reconst_path))
             print('Custo do caminho: {}'.format(map_graph.calc_total_cost(reconst_path)))
-            return (reconst_path, map_graph.calc_total_cost(reconst_path))
+            
+            time_taken = process_time() - start_time
+            total_cost = map_graph.calc_total_cost(reconst_path)
+            return SearchResult(reconst_path, total_cost, closed_list, time_taken)
 
         for (m, weight) in map_graph.get_neighbours(n):
             if m not in open_list and m not in closed_list:
@@ -60,4 +63,5 @@ def a_star_search(map_graph: Map, start_name, target_name):
         closed_list.add(n)
 
     print('Caminho não existe!')
-    return None
+    time_taken = process_time() - start_time
+    return SearchResult(None, 0, closed_list, time_taken)

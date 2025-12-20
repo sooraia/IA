@@ -1,4 +1,4 @@
-from src.graph.map import Map
+from graph.map import Map
 from time import process_time
 from src.search.SearchResult import SearchResult
 
