@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import datetime
 from enum import Enum
 
+from src.utils import distancia_euclidiana
+
 velocidade_media = 40  # km/h
 timeout_rejeicao_pedido = datetime.timedelta(hours=1)
 
@@ -38,6 +40,7 @@ class Veiculo:
     localizacao: str # no do grafo
     estado: EstadoVeiculo
     custo_por_km: float
+    posicao: tuple[float, float]
 
     def pode_atender_pedido(self, numero_passageiros: int, distancia: float, preferencia_ambiental: bool) -> bool:
         return (self.estado == EstadoVeiculo.DISPONIVEL and
@@ -58,19 +61,61 @@ class Veiculo:
     def __hash__(self) -> int:
         return hash(self.id)
     
-    def atender_pedido(self, path, pedido):
+    def go_to_location(self, new_location: str):
+        travel_distance = distancia_euclidiana(self.localizacao, new_location)
+        new_position = mapa.get_position(new_location) #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        tempo_total = (travel_distance / velocidade_media) * 3600  # em seg
+        distancia_percorrida = 0
+        distancia_por_segundo = velocidade_media / 3600
+
+        while distancia_percorrida < travel_distance:
+            distancia_percorrida += distancia_por_segundo
+            if distancia_percorrida > travel_distance:
+                distancia_percorrida = travel_distance
+            
+            consumo = self.calcular_consumo_viagem(distancia_por_segundo)
+            self.autonomia_atual -= consumo
+            
+            progresso = distancia_percorrida / travel_distance
+            self.posicao = (self.posicao[0] + (new_position[0] - self.posicao[0]) * progresso,
+                             self.posicao[1] + (new_position[1] - self.posicao[1]) * progresso)
+            datetime.time.sleep(1) 
+        
+        self.localizacao = new_location
+        self.posicao = new_position
+    
+        
+
+    def atender_pedido(self, path_origem, path_destino, pedido):
         pedido.estado = EstadoPedido.ATRIBUIDO
         self.estado = EstadoVeiculo.OCUPADO
-        # ...
+        for localizacao in path_origem:
+            self.go_to_location(localizacao)
+
+        if pedido.horario_pretendido > datetime.datetime.now():
+            wait_time = (pedido.horario_pretendido - datetime.datetime.now()).total_seconds()
+            datetime.time.sleep(wait_time)
+
         pedido.estado = EstadoPedido.EM_TRANSPORTE
-        #...
+        
+        for localizacao in path_destino:
+            self.go_to_location(localizacao)
 
         pedido.estado = EstadoPedido.CONCLUIDO
+        self.estado = EstadoVeiculo.DISPONIVEL
 
     def abastecer(self, path):
         self.estado = EstadoVeiculo.ABASTECER
-        # ...
-        self.autonomia_atual = self.autonomia_max
+        for localizacao in path:
+            self.go_to_location(localizacao)
+
+        tempo_total_carregamento = self.tempo_recarga_abastecimento * (self.autonomia_max - self.autonomia_atual) / self.autonomia_max
+        
+        while self.autonomia_atual < self.autonomia_max:
+            self.autonomia_atual += self.autonomia_max / self.tempo_recarga_abastecimento
+            tempo_total_carregamento -= 1
+            datetime.time.sleep(1)
+
         self.estado = EstadoVeiculo.DISPONIVEL
 
 @dataclass
