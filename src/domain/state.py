@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
+import threading
 from typing import List, Dict, Optional
+from src.domain.pedido_gerador import gerar_pedidos
 from src.domain.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, EstadoPedido, velocidade_media
 from src.utils import distancia_manhattan, distancia_euclidiana
 from threading import Thread
@@ -150,8 +152,12 @@ class Estado:
             
 
     def run(self, algoritmo_procura):
+        thread_gera_pedidos = threading.Thread(gerar_pedidos(map.places, 30))
+        thread_gera_pedidos.start()
+        
         while True:
             self.atualizar_estado(algoritmo_procura)
+            
 
                     
                     
