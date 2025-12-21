@@ -169,9 +169,22 @@ class Estado:
             fator_hora = 1.0
 
         return fator_zona * fator_hora
+    
+      
+    def thread_produtora_pedidos(self, localizacoes, quantidade):
+        generator = gerar_pedidos(localizacoes, quantidade)
+        
+        for novo_pedido in generator:
+            # Usar lock para adicionar à lista global com segurança ------------!!!!!!!!!!
+            self.adicionar_pedido(novo_pedido)
 
     def run(self, algoritmo_procura):
-        thread_gera_pedidos = threading.Thread(gerar_pedidos(map.places, 30))
+        nomes_locais = [place.get_name() for place in self.mapa.places]
+        thread_gera_pedidos = threading.Thread(
+            target = self.thread_produtora_pedidos, 
+            args=(self, nomes_locais, 30),
+            daemon=True
+        )
         thread_gera_pedidos.start()
         
         while True:
