@@ -16,21 +16,28 @@ def main():
     N_PONTOS_RECOLHA = 21
     N_POSTOS_ABASTECIMENTO = 6
     N_POSTOS_CARREGAMENTO = 3
-
+    
+    pontos_de_recolha_coords = [(4.7, 8.45), (1.8, 7.5), (6.15, 7.85), (0.0, 5.55), (3.85, 6.65), 
+                                (6.1, 6.2), (8.65, 6.2), (1.7, 4.5), (2.55, 3.75), (4.75, 4.5)
+                                (7.6, 5.75), (0.0, 1.8), (1.3, 2.5), (3.8,2.7), (6.0, 3.0), 
+                                (8.6, 3.85), (2.1, 0.0), (3.25, 0.65), (4.14, 1.4), (5.15, 0.1), 
+                                (6.8, 1.55)]
+    postos_de_abastecimento_coords = [(3.2, 8.45), (7.65, 7.6), (4.75,5.6), (0, 4.5), (2.1, 1.8), (7.65, 2.8)]
+    postos_de_carregamento_coords = [(3.2, 6.15), (8.1, 6.2), (4.9, 0.6)]
     ## ADICIONAR CENTRAL
 
     """ Add nodes to map graph """
     #   Pontos de recolha
     for i in range (N_PONTOS_RECOLHA):
-        map_graph.add_place(PlaceType.RECOLHA_DE_PASSAGEIROS)
+        map_graph.add_place(PlaceType.RECOLHA_DE_PASSAGEIROS, pontos_de_recolha_coords[i])
 
     #   Postos de Abastecimento
     for i in range (N_POSTOS_ABASTECIMENTO):
-        map_graph.add_place(PlaceType.POSTO_DE_ABASTECIMENTO)
+        map_graph.add_place(PlaceType.POSTO_DE_ABASTECIMENTO, postos_de_abastecimento_coords[i])
 
     #   Estações de carga
     for i in range (N_POSTOS_CARREGAMENTO):
-        map_graph.add_place(PlaceType.ESTACAO_DE_CARGA)
+        map_graph.add_place(PlaceType.ESTACAO_DE_CARGA, postos_de_carregamento_coords[i])
 
     """ Add edges to map graph """
     map_graph.add_edge("R1", "G1", 1.5, "Normal")

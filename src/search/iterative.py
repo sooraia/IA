@@ -1,9 +1,9 @@
 from time import time
-from graph.map import Map, Place, PlaceType
+from graph.map import Map, Place, PlaceType, get_street_distance
 from SearchResult import SearchResult
 
 # Procura em profundidade com limite de profundidade
-def dfs_depth(self, map, start_name: str, target_name: str, max_depth: int, path = None, visited = None, current_depth = 0) -> SearchResult:
+def dfs_depth(self, map: Map, start_name: str, target_name: str, max_depth: int, path = None, visited = None, current_depth = 0) -> SearchResult:
     if visited is None:
         visited = set()
     if path is None:
@@ -22,15 +22,16 @@ def dfs_depth(self, map, start_name: str, target_name: str, max_depth: int, path
     if start_place == target_place:
         total_distance = 0
         for i in range(len(path) - 1):
-            for neighbor, cost in map.get_neighbors(path[i]):
+            for neighbor in map.get_neighbors(path[i]):
                 if neighbor == path[i+1]:
+                    cost = map.get_street_distance(neighbor,path[i])
                     total_distance += cost
                     break
         return SearchResult(path.copy(), total_distance, visited.copy(), 0)
     
     visited.add(start_place)
 
-    for neighbor, cost in map.get_neighbors(start_place):
+    for neighbor in map.get_neighbors(start_place):
         if neighbor not in visited:
             result = self.dfs_depth(neighbor.get_name(), target_name, max_depth, path, visited, current_depth + 1)
             if result is not None:

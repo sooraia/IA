@@ -7,11 +7,12 @@ class PlaceType(Enum):
     ESTACAO_DE_CARGA = "E"
 
 class Place:
-    def __init__(self, placeType):
+    def __init__(self, placeType, coord):
         self.placeType = placeType
         self.name = ""
         self.id = -1
         self.set_max_veiculos()
+        self.coord = coord
 
     def set_max_veiculos(self):
         if self.placeType == PlaceType.POSTO_DE_ABASTECIMENTO:
