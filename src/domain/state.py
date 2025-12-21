@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
+import threading
 from typing import List, Dict, Optional
+from src.domain.pedido_gerador import gerar_pedidos
 from src.domain.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, EstadoPedido, velocidade_media
 from src.utils import distancia_manhattan, distancia_euclidiana
 from threading import Thread
@@ -149,10 +151,32 @@ class Estado:
             self.tempo_espera_total += p.tempo_espera.total_seconds() / 60.0  # min
 
         return self.custo_operacional_acumulado + self.tempo_espera_total + self.emissoes_totais + self.distancia_vazio_total + self.pedidos_rejeitados
+            
+    def get_fator_transito(tipo_zona: str, hora_atual: float) -> float:
+
+        if tipo_zona == "Old town":
+            fator_zona = 3.0
+        elif tipo_zona == "Residencial":
+            fator_zona = 1.0
+        else:
+            fator_zona = 2.0
+
+        if 0 <= hora_atual < 7:
+            fator_hora = 0.5
+        elif (7 <= hora_atual < 9.5) or (17 <= hora_atual < 19.5):
+            fator_hora = 1.5
+        else:
+            fator_hora = 1.0
+
+        return fator_zona * fator_hora
 
     def run(self, algoritmo_procura):
+        thread_gera_pedidos = threading.Thread(gerar_pedidos(map.places, 30))
+        thread_gera_pedidos.start()
+        
         while True:
             self.atualizar_estado(algoritmo_procura)
+            
 
                     
                     
