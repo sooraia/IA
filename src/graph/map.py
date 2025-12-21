@@ -6,6 +6,7 @@ class Map:
     def __init__(self):
         self.places = []
         self.graph = {}                     # key = objeto Place, valor = lista de tuplos (vizinho, custo)
+        self.aresta_info = {}
         self.pontos_recolha = []
         self.postos_abastecimento = []
         self.postos_carregamento = []
@@ -47,15 +48,15 @@ class Map:
     def get_neighbours(self, place: Place):
         return self.graph.get(place, [])
 
-    def add_edge(self, name1: str, name2: str, cost: float):
+    def add_edge(self, name1: str, name2: str, cost: float, tipo_zona: str):
         p1 = self.get_place(name1)
         p2 = self.get_place(name2)
         if p1 is None or p2 is None:
             print(f"Aviso: nó não encontrado -> {name1}-{name2}")
             return
 
-        self.graph[p1].append((p2, cost))
-        self.graph[p2].append((p1, cost))   # grafo não-direcionado
+        self.graph[p1].append((p2, cost, tipo_zona))
+        self.graph[p2].append((p1, cost, tipo_zona))   # grafo não-direcionado
 
     def add_place(self, place_type: PlaceType):
         new_place = Place(placeType=place_type)
