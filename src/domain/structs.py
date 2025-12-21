@@ -2,10 +2,9 @@ from dataclasses import dataclass
 import datetime
 from enum import Enum
 
-from src.utils import distancia_euclidiana
+from src.utils import distancia_euclidiana, horaSimuladaAtual
 
 velocidade_media = 40  # km/h
-timeout_rejeicao_pedido = datetime.timedelta(hours=1)
 
 class TipoVeiculo(Enum):
     ELETRICO = "eletrico"
@@ -41,6 +40,7 @@ class Veiculo:
     estado: EstadoVeiculo
     custo_por_km: float
     posicao: tuple[float, float]
+    emissoes_por_km: float
 
     def pode_atender_pedido(self, numero_passageiros: int, distancia: float, preferencia_ambiental: bool) -> bool:
         return (self.estado == EstadoVeiculo.DISPONIVEL and
@@ -83,21 +83,28 @@ class Veiculo:
         
         self.localizacao = new_location
         self.posicao = new_position
-    
         
 
     def atender_pedido(self, path_origem, path_destino, pedido):
         pedido.estado = EstadoPedido.ATRIBUIDO
+
+        # atualiza o tempo de espera se a atribuicao for depois do horario pretendido
+        if pedido.horario_pretendido < horaSimuladaAtual():
+            pedido.tempo_espera = horaSimuladaAtual() - pedido.horario_pretendido
+
+        #desloca-se para a origem
         self.estado = EstadoVeiculo.OCUPADO
         for localizacao in path_origem:
             self.go_to_location(localizacao)
 
-        if pedido.horario_pretendido > datetime.datetime.now():
-            wait_time = (pedido.horario_pretendido - datetime.datetime.now()).total_seconds()
+        # espera ate ao horario pretendido e atualiza o tempo de espera
+        if pedido.horario_pretendido > horaSimuladaAtual():
+            wait_time = (pedido.horario_pretendido - horaSimuladaAtual()).total_seconds()
             datetime.time.sleep(wait_time)
+            pedido.tempo_espera = 0
 
+        #desloca-se para o destino
         pedido.estado = EstadoPedido.EM_TRANSPORTE
-        
         for localizacao in path_destino:
             self.go_to_location(localizacao)
 
@@ -125,9 +132,11 @@ class Pedido:
     localizacao_destino: str
     numero_passageiros: int
     horario_pretendido: datetime
+    tempo_maximo_espera: datetime.timedelta
     prioridade: PrioridadePedido
     preferencia_ambiental: bool # false para indiferente, true para eletrico
     estado: EstadoPedido
+    tempo_espera: datetime.timedelta
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -142,14 +151,15 @@ class Pedido:
         return 0
     
     def verificar_tempo_rejeicao(self) -> bool:
-        if self.horario_pretendido + timeout_rejeicao_pedido < datetime.datetime.now():
+        if self.horario_pretendido + self.tempo_maximo_espera < horaSimuladaAtual():
             self.estado = EstadoPedido.REJEITADO
+            self.tempo_espera = horaSimuladaAtual() - self.horario_pretendido
             return True
         return False
     
     def tempo_ate_timeout(self) -> datetime.timedelta:
-        horario_timeout = self.horario_pretendido + timeout_rejeicao_pedido
-        return horario_timeout - datetime.datetime.now()
+        horario_timeout = self.horario_pretendido + self.tempo_maximo_espera
+        return horario_timeout - horaSimuladaAtual()
 
     
     

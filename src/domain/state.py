@@ -80,11 +80,23 @@ class Estado:
     def heuristica_atribuicao_pedidos(self, veiculo, pedido):
         dist = self.distancia_euclidiana(veiculo.localizacao, pedido.localizacao_origem) + self.distancia_euclidiana(pedido.localizacao_origem, pedido.localizacao_destino)
 
+        ambiental = 1
+        if veiculo.tipo == TipoVeiculo.ELETRICO:
+            ambiental = 0
+
         tempo_estimado = dist / velocidade_media #horas
         return (
             1.0 * dist +
-            2.0 * tempo_estimado
+            2.0 * tempo_estimado +
+            5.0 * ambiental
         )
+
+    def atualizar_custos(self, veiculo: Veiculo, passageiros: bool, distancia_percorrida: float):
+        self.custo_operacional_acumulado +=  veiculo.calcular_custo_viagem(distancia_percorrida)
+        self.emissoes_totais += distancia_percorrida * veiculo.emissoes_por_km
+        
+        if not passageiros:
+            self.distancia_vazio_total += distancia_percorrida
 
     # Função principal para atualizar o estado do sistema: atribuição de pedidos e gestão dos veículos
     # O argumento algoritmo_procura é uma o algoritmo escolhido para implementar a procura da melhor rota no grafo
@@ -117,6 +129,8 @@ class Estado:
                             autonomia_reserva = distancia_manhattan(pedido.localizacao_destino, posto)
                             if (r1.distanca + r2.distancia + autonomia_reserva) <= veiculo.autonomia_atual:
                                 veiculos_disponiveis.remove(veiculo)
+                                self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= r1.distancia)
+                                self.atualizar_custos(veiculo, passageiros=True, distancia_percorrida= r2.distancia)
                                 Thread(target=veiculo.atender_pedido, args=(r1.path, r2.path, pedido,)).start()
                                 break
         
@@ -127,8 +141,14 @@ class Estado:
                     estacao = self.posto_mais_proximo(veiculo.tipo, veiculo.localizacao)
                     results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao)
                     if results is not None:
+                        self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= results.distancia)
                         Thread(target=veiculo.abastecer(), args=(results.path,)).start()
-            
+    
+    def get_custo_total(self) -> float:
+        for p in self.pedidos:
+            self.tempo_espera_total += p.tempo_espera.total_seconds() / 60.0  # min
+
+        return self.custo_operacional_acumulado + self.tempo_espera_total + self.emissoes_totais + self.distancia_vazio_total + self.pedidos_rejeitados
 
     def run(self, algoritmo_procura):
         while True:

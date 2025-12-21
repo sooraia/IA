@@ -1,5 +1,9 @@
+from datetime import time
+import datetime
 import sys
 import os
+from utils import set_hora_real_inicial
+from domain.state import Estado
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -11,7 +15,7 @@ from search.DFS import dfs_search
 
 
 
-def main():
+def build_map():
     map_graph = Map()
     N_PONTOS_RECOLHA = 21
     N_POSTOS_ABASTECIMENTO = 6
@@ -162,43 +166,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
 
-    map_graph_instance = main()
-
-
-    resultado_dfs = dfs_search(map_graph_instance, "R1", "E3")
-    resultado_bfs = bfs_search(map_graph_instance, "R1", "E3")
-
-    print("\n--- Teste de Busca em Profundidade (DFS) de R1 para E3 ---")
-    if resultado_dfs.path is not None:
-        # Converter objetos para nomes
-        nomes_dfs = [p.get_name() for p in resultado_dfs.path]
-        
-        print(f"Caminho: {nomes_dfs}")
-        print(f"Distância Total: {resultado_dfs.distance}")
-        print(f"Tempo de Execução: {resultado_dfs.time_taken:.6f} segundos")
-        print(f"Nós visitados: {len(resultado_dfs.visited)}")
-    else:
-        print("DFS: Caminho não encontrado.")
-        print(f"Tempo gasto: {resultado_dfs.time_taken:.6f} segundos")
-
-
-
-    print("\n--- Teste de Busca em Largura (BFS) de R1 para E3 ---")
-    if resultado_bfs.path is not None:
-        # Converter objetos para nomes
-        nomes_bfs = [p.get_name() for p in resultado_bfs.path]
-        
-        print(f"Caminho: {nomes_bfs}")
-        print(f"Distância Total: {resultado_bfs.distance}")
-        print(f"Tempo de Execução: {resultado_bfs.time_taken:.6f} segundos")
-        print(f"Nós visitados: {len(resultado_bfs.visited)}")
-    else:
-        print("BFS: Caminho não encontrado.")
-        print(f"Tempo gasto: {resultado_bfs.time_taken:.6f} segundos")
-
-
+    map_graph_instance = build_map()
+    set_hora_real_inicial(datetime.now)
+    # ... estado
+    
 
 
 """if __name__ == "__main__":
