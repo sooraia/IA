@@ -1,1 +1,1 @@
-# Pin runtime dependencies here (e.g., networkx, numpy). Leave empty until the implementation requires packages.
+pygame

@@ -1,17 +1,19 @@
-from datetime import time
-import datetime
 import sys
 import os
-from utils import set_hora_real_inicial
-from domain.state import Estado
 
+# Add project root to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from datetime import time
+import datetime
+from utils import set_hora_real_inicial
+from domain.state import Estado
 
 from graph.map import Map
 from graph.place import Place, PlaceType
 from search.BFS import bfs_search
 from search.DFS import dfs_search
+from search.UCS import ucs_search
 
 
 
@@ -22,7 +24,7 @@ def build_map():
     N_POSTOS_CARREGAMENTO = 3
     
     pontos_de_recolha_coords = [(4.7, 8.45), (1.8, 7.5), (6.15, 7.85), (0.0, 5.55), (3.85, 6.65), 
-                                (6.1, 6.2), (8.65, 6.2), (1.7, 4.5), (2.55, 3.75), (4.75, 4.5)
+                                (6.1, 6.2), (8.65, 6.2), (1.7, 4.5), (2.55, 3.75), (4.75, 4.5),
                                 (7.6, 5.75), (0.0, 1.8), (1.3, 2.5), (3.8,2.7), (6.0, 3.0), 
                                 (8.6, 3.85), (2.1, 0.0), (3.25, 0.65), (4.14, 1.4), (5.15, 0.1), 
                                 (6.8, 1.55)]
@@ -168,9 +170,27 @@ def build_map():
 if __name__ == "__main__":
 
     map_graph_instance = build_map()
-    set_hora_real_inicial(datetime.now)
+    set_hora_real_inicial(datetime.datetime.now)
     # ... estado
     
+    print("A iniciar visualização...")
+    try:
+        from gui.visualizer import Visualizer
+        viz = Visualizer(map_graph_instance)
+        
+        algorithms = {
+            'UCS': ucs_search
+        }
+        
+        # Pode alterar o início/fim padrão aqui ou na UI
+        viz.run(algorithms, start_node="R1", end_node="R21")
+        
+    except ImportError as e:
+        print(f"Não foi possível importar o Visualizer: {e}")
+        print("Certifique-se de que está a executar a partir da raiz do projeto ou que 'src' está no python path.")
+    except Exception as e:
+        print(f"Ocorreu um erro durante a visualização: {e}")
+
 
 
 """if __name__ == "__main__":
