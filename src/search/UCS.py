@@ -2,9 +2,13 @@ from time import process_time
 import heapq
 from graph.map import Map
 from search.SearchResult import SearchResult
+from src.utils import horaSimuladaAtual
+from domain.state import get_fator_transito
 
 def ucs_search(map_graph: Map, start_name: str, end_name: str) -> SearchResult:
     start_time = process_time()
+
+    hora_atual = horaSimuladaAtual()
 
     # Converter as strings em objetos 'Place'
     start_node = map_graph.get_place(start_name)
@@ -39,12 +43,12 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str) -> SearchResult:
         visited.add(current_node)
 
         # Explorar vizinhos
-        for neighbor_info in map_graph.get_neighbours(current_node):
-            neighbor = neighbor_info[0]
-            edge_cost = neighbor_info[1]
+        for (neighbor, dist, zona) in map_graph.get_neighbours(current_node):
 
             if neighbor not in visited:
-                new_cost = cost + edge_cost
+                transito = get_fator_transito(zona, hora_atual)
+                weight = dist * transito
+                new_cost = cost + weight
                 new_path = path + [neighbor]
                 heapq.heappush(pq, (new_cost, id(neighbor), neighbor, new_path))
 
