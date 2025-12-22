@@ -10,10 +10,10 @@ BG_COLOR = (255, 255, 255)
 NODE_RADIUS = 15
 FONT_SIZE = 12
 
-# Colors
-COLOR_RECOLHA = (100, 100, 255)  # Blueish
-COLOR_ABASTECIMENTO = (100, 255, 100) # Greenish
-COLOR_CARREGAMENTO = (255, 165, 0) # Orange
+# Cores
+COLOR_RECOLHA = (100, 100, 255)  # Azulado
+COLOR_ABASTECIMENTO = (100, 255, 100) # Esverdeado
+COLOR_CARREGAMENTO = (255, 165, 0) # Laranja
 COLOR_DEFAULT = (200, 200, 200)
 COLOR_EDGE = (50, 50, 50)
 COLOR_TEXT = (0, 0, 0)
@@ -25,17 +25,17 @@ class Visualizer:
         pygame.display.set_caption("TaxiGreen AI - Map Visualization")
         self.clock = pygame.time.Clock()
         self.map_graph = map_graph
-        self.font = pygame.font.SysFont('Arial', FONT_SIZE) # Try bold?
+        self.font = pygame.font.SysFont('Arial', FONT_SIZE) # Tentar negrito?
         
-        # Determine scale
-        self.scale_x = SCREEN_WIDTH / 10.0 # Assuming max coord is around 9-10
+        # Determinar escala
+        self.scale_x = SCREEN_WIDTH / 10.0 # Assumindo coord máx aprox 9-10
         self.scale_y = SCREEN_HEIGHT / 10.0
         
-        # Margins
+        # Margens
         self.margin_x = 50
         self.margin_y = 50
         
-        # Recalculate scale based on actual margins
+        # Recalcular escala com base nas margens reais
         self.draw_width = SCREEN_WIDTH - 2 * self.margin_x
         self.draw_height = SCREEN_HEIGHT - 2 * self.margin_y
         self.scale_x = self.draw_width / 10.0 
@@ -43,23 +43,23 @@ class Visualizer:
 
     def transform_coord(self, coord):
         x, y = coord
-        # Flip Y because pygame 0,0 is top-left
-        # Assuming our coords are standard cartesian (0,0 at bottom-left)
-        # But let's check input data range. Max Y is ~8.5. 
-        # Screen Y = Height - (y * scale) - margin
+        # Inverter Y porque 0,0 no pygame é canto superior esquerdo
+        # Assumindo coordenadas cartesianas padrão (0,0 no canto inferior esquerdo)
+        # Mas vamos verificar intrvalo de dados. Max Y é ~8.5. 
+        # Screen Y = Altura - (y * escala) - margem
         
         screen_x = self.margin_x + (x * self.scale_x)
         screen_y = SCREEN_HEIGHT - self.margin_y - (y * self.scale_y)
         return (screen_x, screen_y)
 
     def draw_edges(self):
-        # We need to iterate uniquely. map_graph.graph has directed entries for undirected edges
+        # Precisamos de iterar unicamente. map_graph.graph tem entradas direcionadas para arestas não direcionadas
         drawn_edges = set()
         
         for node, edges in self.map_graph.graph.items():
             start_pos = self.transform_coord(node.coord)
             for (neighbor, cost, type_zone) in edges:
-                # Create a unique pair identifier
+                # Criar um identificador de par único
                 pair = tuple(sorted((node.get_name(), neighbor.get_name())))
                 if pair in drawn_edges:
                     continue
@@ -67,15 +67,15 @@ class Visualizer:
                 drawn_edges.add(pair)
                 end_pos = self.transform_coord(neighbor.coord)
                 
-                # Draw line
-                # Different style for different zones? For now just solid.
+                # Desenhar linha
+                # Estilo diferente para zonas diferentes? Por agora apenas sólido.
                 pygame.draw.line(self.screen, COLOR_EDGE, start_pos, end_pos, 2)
                 
-                # Draw cost?
+                # Desenhar custo?
                 mid_x = (start_pos[0] + end_pos[0]) / 2
                 mid_y = (start_pos[1] + end_pos[1]) / 2
                 text_surf = self.font.render(str(cost), True, (100, 100, 100))
-                # self.screen.blit(text_surf, (mid_x, mid_y)) # Optional, might clutter
+                # self.screen.blit(text_surf, (mid_x, mid_y)) # Opcional, pode poluir visualmente
 
     def draw_nodes(self):
         for node in self.map_graph.places:
@@ -89,11 +89,11 @@ class Visualizer:
             elif node.placeType == PlaceType.ESTACAO_DE_CARGA:
                 color = COLOR_CARREGAMENTO
             
-            # Draw circle
+            # Desenhar círculo
             pygame.draw.circle(self.screen, color, (int(pos[0]), int(pos[1])), NODE_RADIUS)
-            pygame.draw.circle(self.screen, (0,0,0), (int(pos[0]), int(pos[1])), NODE_RADIUS, 1) # Border
+            pygame.draw.circle(self.screen, (0,0,0), (int(pos[0]), int(pos[1])), NODE_RADIUS, 1) # Borda
             
-            # Draw Label
+            # Desenhar Rótulo
             text_surf = self.font.render(node.get_name(), True, COLOR_TEXT)
             text_rect = text_surf.get_rect(center=(int(pos[0]), int(pos[1])))
             self.screen.blit(text_surf, text_rect)
@@ -109,7 +109,7 @@ class Visualizer:
             start_pos = self.transform_coord(start_node.coord)
             end_pos = self.transform_coord(end_node.coord)
             
-            # Draw thicker red line for path
+            # Desenhar linha vermelha mais grossa para o caminho
             pygame.draw.line(self.screen, (255, 0, 0), start_pos, end_pos, 4)
 
     def run(self, algorithms=None, start_node="R1", end_node="R15"):
@@ -152,7 +152,7 @@ class Visualizer:
                 self.draw_path(path)
             self.draw_nodes()
             
-            # Draw UI Instructions
+            # Desenhar Instruções da UI
             menu_text = f"U: UCS | {start_node} -> {end_node}"
             menu_surf = self.font.render(menu_text, True, (50, 50, 50))
             self.screen.blit(menu_surf, (10, 10))
