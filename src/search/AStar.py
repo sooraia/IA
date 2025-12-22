@@ -1,9 +1,13 @@
 from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
+from src.utils import horaSimuladaAtual
+from domain.state import get_fator_transito
 
-def a_star_search(map_graph: Map, start_name, target_name, heuristic_func) -> SearchResult:
+def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_func) -> SearchResult:
     start_time = process_time()
+
+    hora_atual = horaSimuladaAtual()
 
     start = map_graph.get_place(start_name)
     target = map_graph.get_place(target_name)
@@ -20,7 +24,7 @@ def a_star_search(map_graph: Map, start_name, target_name, heuristic_func) -> Se
         n = None
         
         for v in open_list:
-            if n == None or g[v] + heuristic_func(v, target) < g[n] + heuristic_func(n, target):
+            if n == None or g[v] + heuristic_func(v, target, vehicle) < g[n] + heuristic_func(n, target, vehicle):
                 n = v
                 
         if n == None:
@@ -37,15 +41,16 @@ def a_star_search(map_graph: Map, start_name, target_name, heuristic_func) -> Se
             reconst_path.append(start)
             reconst_path.reverse()
             
-            print('Caminho encontrado: {}'.format(reconst_path))
-            print('Custo do caminho: {}'.format(map_graph.calc_total_cost(reconst_path)))
-            
             time_taken = process_time() - start_time
+
             total_cost = map_graph.calc_total_distance(reconst_path)
             return SearchResult(reconst_path, total_cost, closed_list, time_taken)
 
-        for m in map_graph.get_neighbours(n):
-            weight = map_graph.get_street_distance(m,n)
+        for (m, dist, zona) in map_graph.get_neighbours(n):
+            transito = get_fator_transito(zona, hora_atual)
+
+            weight = dist * transito
+
             if m not in open_list and m not in closed_list:
                 open_list.add(m)
                 parents[m] = n

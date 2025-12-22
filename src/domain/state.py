@@ -7,6 +7,7 @@ from src.utils import distancia_manhattan, distancia_euclidiana
 from threading import Thread
 from graph.map import Map
 from graph.place import PlaceType
+from src.utils import horaSimuladaAtual
 
 @dataclass
 class Estado:
@@ -132,23 +133,23 @@ class Estado:
                         Thread(target=veiculo.abastecer(), args=(results.path,)).start()
 
 
-        def get_fator_transito(tipo_zona: str, hora_atual: float) -> float:
+    def get_fator_transito(tipo_zona: str, hora_atual: float) -> float:
 
-            if tipo_zona == "Old town":
-                fator_zona = 3.0
-            elif tipo_zona == "Residencial":
-                fator_zona = 1.0
-            else:
-                fator_zona = 2.0
+        if tipo_zona == "Old town":
+            fator_zona = 3.0
+        elif tipo_zona == "Residencial":
+            fator_zona = 1.0
+        else:
+            fator_zona = 2.0
 
-            if 0 <= hora_atual < 7:
-                fator_hora = 0.5
-            elif (7 <= hora_atual < 9.5) or (17 <= hora_atual < 19.5):
-                fator_hora = 1.5
-            else:
-                fator_hora = 1.0
+        if 0 <= hora_atual < 7:
+            fator_hora = 0.5
+        elif (7 <= hora_atual < 9.5) or (17 <= hora_atual < 19.5):
+            fator_hora = 1.5
+        else:
+            fator_hora = 1.0
 
-            return fator_zona * fator_hora
+        return fator_zona * fator_hora
             
 
     def run(self, algoritmo_procura):
@@ -159,6 +160,6 @@ class Estado:
             self.atualizar_estado(algoritmo_procura)
             
 
-                    
+    
                     
 
