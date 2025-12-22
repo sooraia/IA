@@ -6,37 +6,56 @@ from src.domain.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, Esta
 from src.utils import distancia_manhattan, distancia_euclidiana
 from threading import Thread
 from graph.map import Map
-from graph.place import PlaceType
-from src.utils import horaSimuladaAtual
+from graph.place import Place, PlaceType
+import json
 
 @dataclass
 class Estado:
-    tempo_atual: float
     veiculos: List[Veiculo]
     pedidos: List[Pedido]
+    pedidos_lock: threading.Lock
     mapa: Map
-    
     # Métricas acumuladas para cálculo do custo
     custo_operacional_acumulado: float = 0.0
     tempo_espera_total: float = 0.0
     emissoes_totais: float = 0.0
     distancia_vazio_total: float = 0.0
     pedidos_rejeitados: int = 0
-    
-    def __hash__(self) -> int:
-        # Hash baseada em tempo, veículos e pedidos
-        return hash((
-            self.tempo_atual,
-            tuple(self.veiculos),
-            tuple(self.pedidos)
-        ))
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Estado):
-            return NotImplemented
-        return (self.tempo_atual == other.tempo_atual and
-                self.veiculos == other.veiculos and
-                self.pedidos == other.pedidos)
+    max_pedidos = 30
+    pedidos_completados = 0
+    pedidos_gerados = 0
+    
+    def __init__ (self, mapa: Map):
+        self.veiculos = []
+        self.pedidos = []
+        self.mapa = mapa
+        self.custo_operacional_acumulado = 0.0
+        self.tempo_espera_total = 0.0
+        self.emissoes_totais = 0.0
+        self.distancia_vazio_total = 0.0
+        self.pedidos_rejeitados = 0
+        self.pedidos_lock = threading.Lock()
+        self.load_veiculos()
+
+    def load_veiculos(self):
+        with open('data/veiculos.json', 'r') as f:
+            veiculos_data = json.load(f)
+            for v_data in veiculos_data["veiculos"]:
+                veiculo = Veiculo(
+                    id=v_data['id'],
+                    tipo=TipoVeiculo(v_data['tipo']),
+                    autonomia_max=v_data['autonomia_max'],
+                    autonomia_atual=v_data['autonomia_atual'],
+                    capacidade_passageiros=v_data['capacidade_passageiros'],
+                    tempo_recarga_abastecimento=v_data['tempo_recarga_abastecimento'],
+                    localizacao=v_data['localizacao'],
+                    estado=EstadoVeiculo(v_data['estado']),
+                    custo_por_km=v_data['custo_por_km'],
+                    posicao=tuple(v_data['posicao']),
+                    emissoes_por_km=v_data['emissoes_por_km']
+                )
+                self.veiculos.append(veiculo)
 
     def calcular_custo(self, pesos: Dict[str, float]) -> float:
         """
@@ -61,17 +80,18 @@ class Estado:
         import copy
         return copy.deepcopy(self)
     
-    def posto_mais_proximo(self, tipo_veiculo: TipoVeiculo, localizacao_atual: str) -> str:
+    def posto_mais_proximo(self, tipo_veiculo: TipoVeiculo, localizacao_atual: str) -> Place:
         if tipo_veiculo == TipoVeiculo.ELETRICO:
             posto = self.mapa.posto_mais_proximo(localizacao_atual, PlaceType.ESTACAO_DE_CARGA)
         else:
             posto = self.mapa.posto_mais_proximo(localizacao_atual, PlaceType.POSTO_DE_ABASTECIMENTO)
-        return posto.get_name()
+        return posto
 
     def get_veiculos_possiveis(self, pedido: Pedido, veiculos_disponiveis: List[Veiculo]) -> List[Veiculo]:
         veiculos_possiveis = []
         for veiculo in veiculos_disponiveis:
-            distancia_min = distancia_euclidiana(veiculo.localizacao, pedido.localizacao_origem) + distancia_euclidiana(pedido.localizacao_origem, pedido.localizacao_destino) # limite inferior oara a distancia
+            distancia_min = distancia_euclidiana(self.mapa.get_place(veiculo.localizacao),self.mapa.get_place(pedido.localizacao_origem)) 
+            + distancia_euclidiana(self.mapa.get_place(pedido.localizacao_origem),self.mapa.get_place(pedido.localizacao_destino)) # limite inferior oara a distancia
             if veiculo.pode_atender_pedido(
                 pedido.numero_passageiros,
                 distancia= distancia_min,
@@ -81,7 +101,8 @@ class Estado:
         return veiculos_possiveis
 
     def heuristica_atribuicao_pedidos(self, veiculo, pedido):
-        dist = self.distancia_euclidiana(veiculo.localizacao, pedido.localizacao_origem) + self.distancia_euclidiana(pedido.localizacao_origem, pedido.localizacao_destino)
+        dist = distancia_euclidiana(self.mapa.get_place(veiculo.localizacao), self.mapa.get_place(pedido.localizacao_origem)) 
+        + distancia_euclidiana(self.mapa.get_place(pedido.localizacao_origem), self.mapa.get_place(pedido.localizacao_destino))
 
         ambiental = 1
         if veiculo.tipo == TipoVeiculo.ELETRICO:
@@ -110,9 +131,10 @@ class Estado:
         for p in pedidos_pendentes:
             if p.verificar_tempo_rejeicao():
                 self.pedidos_rejeitados += 1
+                self.pedidos_completados+=1
 
         pedidos_pendentes.sort(key= lambda p: p.tempo_ate_timeout())  # ordenar por tempo até timeout (< primeiro)
-        pedidos_pendentes.sort(key= lambda p:p.prioriedade_valor(), reverse=True)  # ordenar por prioridade (> primeiro)
+        pedidos_pendentes.sort(key= lambda p:p.prioridade_valor(), reverse=True)  # ordenar por prioridade (> primeiro)
 
         # Atribuir pedidos
         if len(pedidos_pendentes) > 0:
@@ -129,12 +151,13 @@ class Estado:
                         if r1 is not None and r2 is not None:
                             # autonomia de reserva estimada necessaria para deslocação para estacao de recarga após atendimento do pedido
                             posto = self.posto_mais_proximo(veiculo.tipo, pedido.localizacao_origem)
-                            autonomia_reserva = distancia_manhattan(pedido.localizacao_destino, posto)
-                            if (r1.distanca + r2.distancia + autonomia_reserva) <= veiculo.autonomia_atual:
+                            autonomia_reserva = distancia_manhattan(self.mapa.get_place(pedido.localizacao_destino), posto)
+                            if (r1.distance + r2.distance + autonomia_reserva) <= veiculo.autonomia_atual:
                                 veiculos_disponiveis.remove(veiculo)
-                                self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= r1.distancia)
-                                self.atualizar_custos(veiculo, passageiros=True, distancia_percorrida= r2.distancia)
+                                self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= r1.distance)
+                                self.atualizar_custos(veiculo, passageiros=True, distancia_percorrida= r2.distance)
                                 Thread(target=veiculo.atender_pedido, args=(r1.path, r2.path, pedido,)).start()
+                                self.pedidos_completados+=1
                                 break
         
         # Verificar necessidade de recarga/abastecimento
@@ -153,43 +176,37 @@ class Estado:
 
         return self.custo_operacional_acumulado + self.tempo_espera_total + self.emissoes_totais + self.distancia_vazio_total + self.pedidos_rejeitados
             
-    def get_fator_transito(tipo_zona: str, hora_atual: float) -> float:
-
-        if tipo_zona == "Old town":
-            fator_zona = 3.0
-        elif tipo_zona == "Residencial":
-            fator_zona = 1.0
-        else:
-            fator_zona = 2.0
-
-        if 0 <= hora_atual < 7:
-            fator_hora = 0.5
-        elif (7 <= hora_atual < 9.5) or (17 <= hora_atual < 19.5):
-            fator_hora = 1.5
-        else:
-            fator_hora = 1.0
-
-        return fator_zona * fator_hora
     
-      
+    
+    def adicionar_pedido(self, pedido: Pedido):
+        with self.pedidos_lock:
+            self.pedidos.append(pedido)
+            self.pedidos_gerados+=1
+            
+        
+        
+
     def thread_produtora_pedidos(self, localizacoes, quantidade):
         generator = gerar_pedidos(localizacoes, quantidade)
         
         for novo_pedido in generator:
-            # Usar lock para adicionar à lista global com segurança ------------!!!!!!!!!!
             self.adicionar_pedido(novo_pedido)
 
+
     def run(self, algoritmo_procura):
+        self.pedidos_done = False
         nomes_locais = [place.get_name() for place in self.mapa.places]
         thread_gera_pedidos = threading.Thread(
             target = self.thread_produtora_pedidos, 
-            args=(self, nomes_locais, 30),
+            args=(nomes_locais, self.max_pedidos),
             daemon=True
         )
         thread_gera_pedidos.start()
-        
-        while True:
+
+        while self.pedidos_completados != self.max_pedidos:
             self.atualizar_estado(algoritmo_procura)
+            #print(f"Pedidos completados: {self.pedidos_completados}/{self.max_pedidos}")
+                
             
 
     

@@ -152,46 +152,30 @@ def build_map():
     map_graph.add_edge("R13", "R8", 2.45, "Normal")
     map_graph.add_edge("R13", "R19", 3.75, "Old town")
 
-    # ---------- Teste rápido ----------
-    # print("Nós criados (primeiros 10):")
-    # for p in map_graph.places[:10]:
-    #     print(f"ID: {p.get_id():2d}  |  Nome: {p.get_name()}")
-
-    # print("\nGrafo (primeiras linhas):")
-    # print(map_graph)
-
-    # print("\nTodas as arestas:")
-    # print(map_graph.imprime_aresta())
-
-    
     return map_graph
 
 
 if __name__ == "__main__":
 
     map_graph_instance = build_map()
-    set_hora_real_inicial(datetime.datetime.now)
-    # ... estado
-    
+    set_hora_real_inicial(datetime.datetime.now())
+    estado = Estado(map_graph_instance)
+    estado.run(ucs_search)
     print("A iniciar visualização...")
-    try:
-        from gui.visualizer import Visualizer
-        viz = Visualizer(map_graph_instance)
+    # try:
+    #     from gui.visualizer import Visualizer
+    #     viz = Visualizer(map_graph_instance)
         
-        algorithms = {
-            'UCS': ucs_search
-        }
+    #     algorithms = {
+    #         'UCS': ucs_search
+    #     }
         
-        # Pode alterar o início/fim padrão aqui ou na UI
-        viz.run(algorithms, start_node="R1", end_node="R21")
+    #     # Pode alterar o início/fim padrão aqui ou na UI
+    # #     viz.run(algorithms, start_node="R1", end_node="R21")
         
-    except ImportError as e:
-        print(f"Não foi possível importar o Visualizer: {e}")
-        print("Certifique-se de que está a executar a partir da raiz do projeto ou que 'src' está no python path.")
-    except Exception as e:
-        print(f"Ocorreu um erro durante a visualização: {e}")
+    # except ImportError as e:
+    #     print(f"Não foi possível importar o Visualizer: {e}")
+    #     print("Certifique-se de que está a executar a partir da raiz do projeto ou que 'src' está no python path.")
+    # except Exception as e:
+    #     print(f"Ocorreu um erro durante a visualização: {e}")
 
-
-
-"""if __name__ == "__main__":
-    main()"""

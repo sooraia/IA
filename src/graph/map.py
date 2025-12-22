@@ -1,6 +1,7 @@
 # map.py
 from .place import Place, PlaceType
 from src.utils import distancia_euclidiana, distancia_manhattan
+from datetime import datetime
 
 class Map:
     def __init__(self):
@@ -92,9 +93,26 @@ class Map:
 
         for estacao in estacoes:
             if estacao.current_veiculos +1 <= estacao.max_veiculos:
-                distancia = distancia_euclidiana(local_origem.get_id(), estacao.get_id())
+                distancia = distancia_euclidiana(local_origem, estacao)
                 if distancia < distancia_minima:
                     distancia_minima = distancia
                     posto_mais_prox = estacao
-
         return posto_mais_prox
+    
+    def get_fator_transito(self, tipo_zona: str, hora: datetime) -> float:
+        hora_atual = hora.hour + hora.minute / 60.0
+        if tipo_zona == "Old town":
+            fator_zona = 3.0
+        elif tipo_zona == "Residencial":
+            fator_zona = 1.0
+        else:
+            fator_zona = 2.0
+
+        if 0 <= hora_atual < 7:
+            fator_hora = 0.5
+        elif (7 <= hora_atual < 9.5) or (17 <= hora_atual < 19.5):
+            fator_hora = 1.5
+        else:
+            fator_hora = 1.0
+
+        return fator_zona * fator_hora

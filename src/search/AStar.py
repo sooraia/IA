@@ -2,7 +2,6 @@ from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
 from src.utils import horaSimuladaAtual
-from domain.state import get_fator_transito
 
 def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_func) -> SearchResult:
     start_time = process_time()
@@ -47,7 +46,7 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
             return SearchResult(reconst_path, total_cost, closed_list, time_taken)
 
         for (m, dist, zona) in map_graph.get_neighbours(n):
-            transito = get_fator_transito(zona, hora_atual)
+            transito = map_graph.get_fator_transito(zona, hora_atual)
 
             weight = dist * transito
 
