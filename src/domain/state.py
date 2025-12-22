@@ -176,16 +176,11 @@ class Estado:
 
         return self.custo_operacional_acumulado + self.tempo_espera_total + self.emissoes_totais + self.distancia_vazio_total + self.pedidos_rejeitados
             
-    
-    
     def adicionar_pedido(self, pedido: Pedido):
         with self.pedidos_lock:
             self.pedidos.append(pedido)
             self.pedidos_gerados+=1
             
-        
-        
-
     def thread_produtora_pedidos(self, localizacoes, quantidade):
         generator = gerar_pedidos(localizacoes, quantidade)
         
@@ -205,7 +200,6 @@ class Estado:
 
         while self.pedidos_completados != self.max_pedidos:
             self.atualizar_estado(algoritmo_procura)
-            #print(f"Pedidos completados: {self.pedidos_completados}/{self.max_pedidos}")
                 
             
 

@@ -161,7 +161,6 @@ if __name__ == "__main__":
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
     estado.run(ucs_search)
-    print("A iniciar visualização...")
     # try:
     #     from gui.visualizer import Visualizer
     #     viz = Visualizer(map_graph_instance)

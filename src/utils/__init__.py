@@ -25,7 +25,6 @@ def horaSimuladaAtual():
         dif_sim = dif * 144 # 10 min * 144 = 1440 min = 24h
         
         delta_sim = datetime.timedelta(seconds=dif_sim)
-        hora_sim = datetime.time(5,0,0)
-        print(f"Hora simulada atual: {delta_sim}")
-        
-        return hora_real_inicial
+        hora_sim = datetime.datetime.combine(hora_real_inicial.date(), datetime.time(5,0,0)) + delta_sim
+
+        return hora_sim

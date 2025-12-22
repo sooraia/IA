@@ -67,41 +67,20 @@ class Veiculo:
         travel_distance = distancia_euclidiana_to_place(self.posicao[0], self.posicao[1], new_location)
         new_position = new_location.coord
         distancia_percorrida = 0
-        distancia_por_segundo = velocidade_media / 3600
-        
-        # Taxa de conversão do tempo: 10 minutos reais = 24 horas simuladas
-        # 10 minutos = 600 segundos reais
-        # 24 horas = 86400 segundos simulados
-        # Relação: 1 segundo real = 144 segundos simulados (86400 / 600)
-        segundos_simulados_por_segundo_real = 144
-        
-        # Calcular tempo total necessário para viagem (em segundos reais)
-        tempo_total_segundos = travel_distance / distancia_por_segundo
-        tempo_total_segundos_simulado = tempo_total_segundos * segundos_simulados_por_segundo_real
-        
-        # Início da viagem
-        hora_inicio = horaSimuladaAtual()  # Supondo que esta função retorna datetime
-        
+
+        distancia_por_segundo_real = velocidade_media * (144 / 3600)
+
         while distancia_percorrida < travel_distance:
-            distancia_percorrida += distancia_por_segundo
+            distancia_percorrida += distancia_por_segundo_real
             if distancia_percorrida > travel_distance:
                 distancia_percorrida = travel_distance
             
-            consumo = self.calcular_consumo_viagem(distancia_por_segundo)
+            consumo = self.calcular_consumo_viagem(distancia_por_segundo_real)
             self.autonomia_atual -= consumo
             
             progresso = distancia_percorrida / travel_distance
             self.posicao = (self.posicao[0] + (new_position[0] - self.posicao[0]) * progresso,
                             self.posicao[1] + (new_position[1] - self.posicao[1]) * progresso)
-            
-            # Calcular quanto tempo passou na simulação
-            tempo_passado_segundos_reais = progresso * tempo_total_segundos
-            tempo_passado_segundos_simulados = tempo_passado_segundos_reais * segundos_simulados_por_segundo_real
-            
-            # Atualizar para hora simulada atual
-            hora_atual = hora_inicio + datetime.timedelta(seconds=tempo_passado_segundos_simulados)
-            
-            # Esperar 1 segundo real (equivalente a 144 segundos simulados)
             time.sleep(1)
         
         self.localizacao = new_location.name
@@ -118,21 +97,20 @@ class Veiculo:
         print("...")
         #desloca-se para a origem
         self.estado = EstadoVeiculo.OCUPADO
+
         for localizacao in path_origem:
-            print("1")
             self.go_to_location(localizacao)
-        print(f"[CHEGOU À ORIGEM]Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}")
+
         # espera ate ao horario pretendido e atualiza o tempo de espera
         if pedido.horario_pretendido > horaSimuladaAtual():
-            wait_time = (pedido.horario_pretendido - horaSimuladaAtual()).total_seconds()
+            wait_time = (pedido.horario_pretendido - horaSimuladaAtual()).total_seconds() / 144
             time.sleep(wait_time)
             pedido.tempo_espera = 0
-        print(f"[HORARIO PRETENDIDO DO PEDIDO]Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}")
+
         #desloca-se para o destino
         pedido.estado = EstadoPedido.EM_TRANSPORTE
         for localizacao in path_destino:
             self.go_to_location(localizacao)
-        print(f"[CHEGOU AO DESTINO]Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}")
         pedido.estado = EstadoPedido.CONCLUIDO
         self.estado = EstadoVeiculo.DISPONIVEL
         print(f"Veículo {self.id} concluiu pedido {pedido.id}")
