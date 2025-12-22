@@ -1,0 +1,95 @@
+{
+  "veiculos": [
+    {
+      "id": "AA-01-EE",
+      "tipo": "eletrico",
+      "autonomia_max": 350.0,
+      "autonomia_atual": 350.0,
+      "capacidade_passageiros": 5,
+      "tempo_recarga_abastecimento": 1.3,
+      "localizacao": "E1",
+      "estado": "disponivel",
+      "custo_por_km": 0.05,
+      "posicao": [3.2, 6.15],
+      "emissoes_por_km": 0.0
+    },
+    {
+      "id": "BB-02-EE",
+      "tipo": "eletrico",
+      "autonomia_max": 300.0,
+      "autonomia_atual": 280.0,
+      "capacidade_passageiros": 4,
+      "tempo_recarga_abastecimento": 2,
+      "localizacao": "E1",
+      "estado": "disponivel",
+      "custo_por_km": 0.06,
+      "posicao": [3.2, 6.15],
+      "emissoes_por_km": 0.0
+    },
+    {
+      "id": "CC-03-EE",
+      "tipo": "eletrico",
+      "autonomia_max": 400.0,
+      "autonomia_atual": 400.0,
+      "capacidade_passageiros": 5,
+      "tempo_recarga_abastecimento": 1.7,
+      "localizacao": "E1",
+      "estado": "disponivel",
+      "custo_por_km": 0.05,
+      "posicao": [3.2, 6.15],
+      "emissoes_por_km": 0.0
+    },
+    {
+      "id": "DD-04-CC",
+      "tipo": "combustao",
+      "autonomia_max": 800.0,
+      "autonomia_atual": 750.0,
+      "capacidade_passageiros": 5,
+      "tempo_recarga_abastecimento": 10,
+      "localizacao": "E1",
+      "estado": "disponivel",
+      "custo_por_km": 0.15,
+      "posicao": [3.2, 6.15],
+      "emissoes_por_km": 120.0
+    },
+    {
+      "id": "EE-05-CC",
+      "tipo": "combustao",
+      "autonomia_max": 700.0,
+      "autonomia_atual": 700.0,
+      "capacidade_passageiros": 7,
+      "tempo_recarga_abastecimento": 12,
+      "localizacao": "E1",
+      "estado": "disponivel",
+      "custo_por_km": 0.18,
+      "posicao": [3.2, 6.15],
+      "emissoes_por_km": 160.0
+    },
+    {
+      "id": "FF-06-CC",
+      "tipo": "combustao",
+      "autonomia_max": 600.0,
+      "autonomia_atual": 300.0,
+      "capacidade_passageiros": 5,
+      "tempo_recarga_abastecimento": 8,
+      "localizacao": "E1",
+      "estado": "disponivel",
+      "custo_por_km": 0.14,
+      "posicao": [3.2, 6.15],
+      "emissoes_por_km": 135.0
+    },
+    {
+      "id": "GG-07-CC",
+      "tipo": "combustao",
+      "autonomia_max": 750.0,
+      "autonomia_atual": 750.0,
+      "capacidade_passageiros": 4,
+      "tempo_recarga_abastecimento": 10,
+      "localizacao": "E1",
+      "estado": "disponivel",
+      "custo_por_km": 0.15,
+      "posicao": [3.2, 6.15],
+      "emissoes_por_km": 145.0
+    }
+  ]
+}
