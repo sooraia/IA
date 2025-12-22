@@ -7,6 +7,7 @@ from src.utils import distancia_manhattan, distancia_euclidiana
 from threading import Thread
 from graph.map import Map
 from graph.place import PlaceType
+from src.utils import horaSimuladaAtual
 
 @dataclass
 class Estado:
@@ -191,6 +192,6 @@ class Estado:
             self.atualizar_estado(algoritmo_procura)
             
 
-                    
+    
                     
 

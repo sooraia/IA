@@ -2,10 +2,10 @@ from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
 
-def greedy_search(map: Map, start_name: str, end_name: str, heuristic) -> SearchResult:
+def greedy_search(map: Map, start_name: str, target_name: str, vehicle, heuristic) -> SearchResult:
     start_time = process_time()
     start = map.get_place(start_name)
-    end = map.get_place(end_name)
+    target = map.get_place(target_name)
 
     open_list = set([start])     #lista de nós visitados mas com vizinhos não visitados
     visited_list = set([])          #lista de nós visitados
@@ -18,7 +18,7 @@ def greedy_search(map: Map, start_name: str, end_name: str, heuristic) -> Search
 
         # encontrar o nó na open_list com menor heurística
         for v in open_list:
-            if n == None or heuristic(v, end, vehicle) < heuristic(n, end, vehicle):
+            if n == None or heuristic(v, target, vehicle) < heuristic(n, target, vehicle):
                 n = v
         
         if n == None:
@@ -26,7 +26,7 @@ def greedy_search(map: Map, start_name: str, end_name: str, heuristic) -> Search
             return SearchResult(None, 0, visited_list, time_taken)
         
         # se chegámos ao destino
-        if n == end:
+        if n == target:
             reconst_path = []
 
             # reconstroi o caminho de tras para a frente
