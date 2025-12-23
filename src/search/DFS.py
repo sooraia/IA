@@ -25,7 +25,7 @@ def dfs_search(map_graph : Map, start_node_name, target_node_name) -> SearchResu
 
         neighbours = map_graph.get_neighbours(current_node)
 
-        for neighbour in neighbours:
+        for neighbour,_,_ in neighbours:
             if neighbour not in visitados:
                 visitados.add(neighbour)
                 new_path = path + [neighbour]
