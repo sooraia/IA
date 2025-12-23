@@ -90,6 +90,7 @@ class Veiculo:
     def atender_pedido(self, path_origem, path_destino, pedido):
         pedido.estado = EstadoPedido.ATRIBUIDO
         print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}")
+        autonomia_inicio = self.autonomia_atual
 
         # atualiza o tempo de espera se a atribuicao for depois do horario pretendido
         if pedido.horario_pretendido < horaSimuladaAtual():
@@ -105,7 +106,7 @@ class Veiculo:
         if pedido.horario_pretendido > horaSimuladaAtual():
             wait_time = (pedido.horario_pretendido - horaSimuladaAtual()).total_seconds() / 144
             time.sleep(wait_time)
-            pedido.tempo_espera = 0
+            pedido.tempo_espera = datetime.timedelta(0)
 
         #desloca-se para o destino
         pedido.estado = EstadoPedido.EM_TRANSPORTE
@@ -113,10 +114,12 @@ class Veiculo:
             self.go_to_location(localizacao)
         pedido.estado = EstadoPedido.CONCLUIDO
         self.estado = EstadoVeiculo.DISPONIVEL
+        print("gastou:" + str(autonomia_inicio - self.autonomia_atual) + " / " + str(self.autonomia_max))
         print(f"Veículo {self.id} concluiu pedido {pedido.id}")
 
     def abastecer(self, path):
         self.estado = EstadoVeiculo.ABASTECER
+        print(f"Veículo {self.id} a abastecer/carregar")
         for localizacao in path:
             self.go_to_location(localizacao)
 
@@ -154,6 +157,7 @@ class Pedido:
         self.prioridade = prioridade
         self.preferencia_ambiental = preferencia_ambiental
         self.estado = EstadoPedido.PENDENTE
+        self.tempo_espera = datetime.timedelta(0)
 
     def __hash__(self) -> int:
         return hash(self.id)
