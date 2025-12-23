@@ -3,11 +3,11 @@ from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
 
-def bfs_search(map: Map, start_name: str, end_name: str) -> SearchResult:
+def bfs_search(map_graph: Map, start_name: str, end_name: str) -> SearchResult:
     start_time = process_time()
     # Converter as strings em objetos 'Place'
-    start = map.get_place(start_name)
-    end = map.get_place(end_name)
+    start = map_graph.get_place(start_name)
+    end = map_graph.get_place(end_name)
     # verificar se os nodos existem no grafo
     if start is None or end is None:
         time_taken = process_time() - start_time
@@ -32,14 +32,14 @@ def bfs_search(map: Map, start_name: str, end_name: str) -> SearchResult:
         current_node = path[-1] # Último nodo do caminho
         
         # Explorar os vizinhos do nodo atual
-        for neighbor in map.get_neighbours(current_node):
+        for (neighbor,_,_) in map_graph.get_neighbours(current_node):
             if neighbor not in visited:
                 # Criar novo caminho incluindo o vizinho
                 new_path = path + [neighbor]
 
                 # Se chegámos ao destino, retornar o caminho
                 if neighbor == end:
-                    total_cost = map.calc_total_distance(new_path)
+                    total_cost = map_graph.calc_total_distance(new_path)
                     time_taken = process_time() - start_time
                     return SearchResult(new_path, total_cost, visited, time_taken)
                 

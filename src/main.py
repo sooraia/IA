@@ -160,7 +160,19 @@ if __name__ == "__main__":
     map_graph_instance = build_map()
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
-    estado.run(ucs_search)
+    estado.run(bfs_search)
+    # bfs_search(map_graph_instance, "R1", "R21")
+
+    # print("---- BFS Search ----")
+    # result_bfs = bfs_search(map_graph_instance, "R1", "R21")
+    # if result_bfs.path is not None:
+    #     print("Caminho encontrado pela BFS:")
+    #     print(" -> ".join([place.name for place in result_bfs.path]))
+    #     print(f"Nós visitados: {len(result_bfs.visited_nodes)}")
+    #     print(f"Tempo de execução: {result_bfs.time_taken:.6f} segundos")
+    # else:
+    #     print("Nenhum caminho encontrado pela BFS.")
+    
     # try:
     #     from gui.visualizer import Visualizer
     #     viz = Visualizer(map_graph_instance)

@@ -22,9 +22,10 @@ class Estado:
     distancia_vazio_total: float = 0.0
     pedidos_rejeitados: int = 0
 
-    max_pedidos = 30
+    max_pedidos = 50
     pedidos_completados = 0
     pedidos_gerados = 0
+    distancia_total = 0.0
     
     def __init__ (self, mapa: Map):
         self.veiculos = []
@@ -37,6 +38,7 @@ class Estado:
         self.pedidos_rejeitados = 0
         self.pedidos_lock = threading.Lock()
         self.load_veiculos()
+        self.distancia_total= 0.0
 
     def load_veiculos(self):
         with open('data/veiculos.json', 'r') as f:
@@ -118,6 +120,7 @@ class Estado:
     def atualizar_custos(self, veiculo: Veiculo, passageiros: bool, distancia_percorrida: float):
         self.custo_operacional_acumulado +=  veiculo.calcular_custo_viagem(distancia_percorrida)
         self.emissoes_totais += distancia_percorrida * veiculo.emissoes_por_km
+        self.distancia_total += distancia_percorrida
         
         if not passageiros:
             self.distancia_vazio_total += distancia_percorrida
@@ -173,7 +176,12 @@ class Estado:
     def get_custo_total(self) -> float:
         for p in self.pedidos:
             self.tempo_espera_total += p.tempo_espera.total_seconds() / 60.0  # min
-
+        print("custo operacional:" + str(self.custo_operacional_acumulado))
+        print("tempo espera:" + str(self.tempo_espera_total))
+        print("emissoes totais:" + str(self.emissoes_totais))
+        print("distancia vazio total:" + str(self.distancia_vazio_total))
+        print("pedidos rejeitados:" + str(self.pedidos_rejeitados))
+        print("distancia total:" + str(self.distancia_total))
         return self.custo_operacional_acumulado + self.tempo_espera_total + self.emissoes_totais + self.distancia_vazio_total + self.pedidos_rejeitados
             
     def adicionar_pedido(self, pedido: Pedido):
@@ -200,6 +208,10 @@ class Estado:
 
         while self.pedidos_completados != self.max_pedidos:
             self.atualizar_estado(algoritmo_procura)
+        
+        while any((pedido.estado != EstadoPedido.CONCLUIDO and pedido.estado != EstadoPedido.REJEITADO) for pedido in self.pedidos):
+            pass
+        self.get_custo_total()
                 
             
 

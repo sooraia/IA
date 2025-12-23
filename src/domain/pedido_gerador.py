@@ -30,7 +30,7 @@ def gerar_pedidos(localizacoes: list[str], quantidade: int):
     """Generator que produz pedidos a cada N segundos."""
     id_pedido = 0
     while id_pedido < quantidade:
-        intervalo = random.randint(1,10)
+        intervalo = random.randint(1,3)
         p = gerar_pedido_aleatorio(localizacoes, id_pedido)
         yield p  # Devolve pedido e pausa
         id_pedido += 1
