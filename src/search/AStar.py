@@ -1,7 +1,7 @@
 from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
-from src.utils import horaSimuladaAtual
+from utils import horaSimuladaAtual
 
 def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_func) -> SearchResult:
     start_time = process_time()

@@ -46,7 +46,7 @@ class Map:
     def get_neighbours(self, place: Place):
         return self.graph.get(place, [])
 
-    def add_edge(self, name1: str, name2: str, cost: float, tipo_zona: str):
+    def add_edge(self, name1: str, name2: str, cost: float, tipo_zona: str, cruzamentos: list = []):
 
         p1 = self.get_place(name1)
         p2 = self.get_place(name2)
@@ -102,14 +102,14 @@ class Map:
     def get_fator_transito(self, tipo_zona: str, hora: datetime) -> float:
         hora_atual = hora.hour + hora.minute / 60.0
         if tipo_zona == "Old town":
-            fator_zona = 3.0
+            fator_zona = 1.8
         elif tipo_zona == "Residencial":
             fator_zona = 1.0
         else:
-            fator_zona = 2.0
+            fator_zona = 1.3
 
         if 0 <= hora_atual < 7:
-            fator_hora = 0.5
+            fator_hora = 0.8
         elif (7 <= hora_atual < 9.5) or (17 <= hora_atual < 19.5):
             fator_hora = 1.5
         else:

@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
+import datetime
 import threading
 from typing import List, Dict, Optional
-from src.domain.pedido_gerador import gerar_pedidos
+from src.domain.pedido_gerador import gerar_pedidos, gerar_pedidos_data
 from src.domain.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, EstadoPedido, velocidade_media
 from src.utils import distancia_manhattan, distancia_euclidiana
 from threading import Thread
@@ -22,7 +23,7 @@ class Estado:
     distancia_vazio_total: float = 0.0
     pedidos_rejeitados: int = 0
 
-    max_pedidos = 50
+    max_pedidos = 15
     pedidos_completados = 0
     pedidos_gerados = 0
     distancia_total = 0.0
@@ -37,8 +38,9 @@ class Estado:
         self.distancia_vazio_total = 0.0
         self.pedidos_rejeitados = 0
         self.pedidos_lock = threading.Lock()
-        self.load_veiculos()
         self.distancia_total= 0.0
+
+        self.load_veiculos()
 
     def load_veiculos(self):
         with open('data/veiculos.json', 'r') as f:
@@ -127,14 +129,17 @@ class Estado:
 
     # Função principal para atualizar o estado do sistema: atribuição de pedidos e gestão dos veículos
     # O argumento algoritmo_procura é uma o algoritmo escolhido para implementar a procura da melhor rota no grafo
-    def atualizar_estado(self, algoritmo_procura): 
+    def atualizar_estado(self, algoritmo_procura, heuristica): 
         pedidos_pendentes = [p for p in self.pedidos if p.estado == EstadoPedido.PENDENTE]
         veiculos_disponiveis = [v for v in self.veiculos if v.estado == EstadoVeiculo.DISPONIVEL]
 
         for p in pedidos_pendentes:
             if p.verificar_tempo_rejeicao():
+                print("pedido rejeitado: " + p.id)
                 self.pedidos_rejeitados += 1
                 self.pedidos_completados+=1
+                
+        pedidos_pendentes = [p for p in pedidos_pendentes if p.estado != EstadoPedido.REJEITADO]
 
         pedidos_pendentes.sort(key= lambda p: p.tempo_ate_timeout())  # ordenar por tempo até timeout (< primeiro)
         pedidos_pendentes.sort(key= lambda p:p.prioridade_valor(), reverse=True)  # ordenar por prioridade (> primeiro)
@@ -148,8 +153,8 @@ class Estado:
                     veiculos_possiveis.sort(key = lambda v: self.heuristica_atribuicao_pedidos(v, pedido))
 
                     for veiculo in veiculos_possiveis:
-                        r1 = algoritmo_procura(self.mapa, veiculo.localizacao, pedido.localizacao_destino) # rota local atual -> local origem pedido
-                        r2 = algoritmo_procura(self.mapa, pedido.localizacao_destino, pedido.localizacao_origem) # rota local origem pedido -> local destino pedido
+                        r1 = algoritmo_procura(self.mapa, veiculo.localizacao, pedido.localizacao_destino, veiculo, heuristica) # rota local atual -> local origem pedido
+                        r2 = algoritmo_procura(self.mapa, pedido.localizacao_destino, pedido.localizacao_origem, veiculo, heuristica) # rota local origem pedido -> local destino pedido
 
                         if r1 is not None and r2 is not None:
                             # autonomia de reserva estimada necessaria para deslocação para estacao de recarga após atendimento do pedido
@@ -168,7 +173,7 @@ class Estado:
             if veiculo.estado == EstadoVeiculo.DISPONIVEL:
                 if veiculo.autonomia_atual < (0.2* veiculo.autonomia_max):
                     estacao = self.posto_mais_proximo(veiculo.tipo, veiculo.localizacao)
-                    results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao)
+                    results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao, veiculo, heuristica)
                     if results is not None:
                         self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= results.distancia)
                         Thread(target=veiculo.abastecer(), args=(results.path,)).start()
@@ -189,32 +194,23 @@ class Estado:
             self.pedidos.append(pedido)
             self.pedidos_gerados+=1
             
-    def thread_produtora_pedidos(self, localizacoes, quantidade):
-        generator = gerar_pedidos(localizacoes, quantidade)
+    def thread_produtora_pedidos(self):
+        generator = gerar_pedidos_data()
         
         for novo_pedido in generator:
             self.adicionar_pedido(novo_pedido)
 
-
-    def run(self, algoritmo_procura):
+    def run(self, algoritmo_procura, heuristica):
         self.pedidos_done = False
-        nomes_locais = [place.get_name() for place in self.mapa.places]
         thread_gera_pedidos = threading.Thread(
             target = self.thread_produtora_pedidos, 
-            args=(nomes_locais, self.max_pedidos),
             daemon=True
         )
         thread_gera_pedidos.start()
 
         while self.pedidos_completados != self.max_pedidos:
-            self.atualizar_estado(algoritmo_procura)
-        
+            self.atualizar_estado(algoritmo_procura, heuristica)
+        print("a")
         while any((pedido.estado != EstadoPedido.CONCLUIDO and pedido.estado != EstadoPedido.REJEITADO) for pedido in self.pedidos):
             pass
         self.get_custo_total()
-                
-            
-
-    
-                    
-

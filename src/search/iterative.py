@@ -38,7 +38,7 @@ def dfs_depth(map: Map, start_name: str, target_name: str, max_depth: int, path=
     return None
 
 # Procura iterativa em profundidade
-def iterative(map: Map, start_name: str, target_name: str) -> SearchResult:
+def iterative(map: Map, start_name: str, target_name: str, *args, **kwargs) -> SearchResult:
     total_nodes = len(map.places) #(máximo de profundidade - n-1 arestas)
     start = process_time()
     max_depth = 0

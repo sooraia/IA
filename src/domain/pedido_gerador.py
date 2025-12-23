@@ -1,3 +1,4 @@
+import json
 import random
 import datetime
 import time
@@ -23,8 +24,6 @@ def gerar_pedido_aleatorio(localizacoes: list[str], id_pedido: int) -> Pedido:
     )
     return p;
 
-
-
 # Numa thread
 def gerar_pedidos(localizacoes: list[str], quantidade: int):
     """Generator que produz pedidos a cada N segundos."""
@@ -35,5 +34,35 @@ def gerar_pedidos(localizacoes: list[str], quantidade: int):
         yield p  # Devolve pedido e pausa
         id_pedido += 1
         time.sleep(intervalo)  # Dorme N segundos entre pedidos
+
+
+def load_pedidos():
+    pedidos = []
+    with open('data/pedidos.json', 'r') as f:
+        pedidos_data = json.load(f)
+        for p_data in pedidos_data["pedidos"]:
+            pedido = Pedido(
+                id=p_data['id'],
+                localizacao_origem=p_data['localizacao_origem'],
+                localizacao_destino=p_data['localizacao_destino'],
+                numero_passageiros=p_data['numero_passageiros'],
+                horario_pretendido=datetime.datetime.combine(horaSimuladaAtual().date(),
+                                                            datetime.datetime.strptime(p_data['horario_pretendido'], '%H:%M:%S').time()),
+                tempo_maximo_espera=datetime.timedelta(minutes=p_data['tempo_maximo_espera_minutos']),
+                prioridade=p_data['prioridade'],
+                preferencia_ambiental=p_data['preferencia_ambiental']
+            )
+            pedidos.append(pedido)
+    return pedidos
+
+def gerar_pedidos_data():
+    """Generator que produz pedidos com base em informações fornecidas."""
+    pedidos = load_pedidos()
+    pedidos.sort(key=lambda p: p.horario_pretendido)
+    for p in pedidos:
+        if p.horario_pretendido - datetime.timedelta(minutes=30) > horaSimuladaAtual(): # esperar até o horário pretendido
+            intervalo = (p.horario_pretendido - datetime.timedelta(minutes=30) - horaSimuladaAtual()).total_seconds()
+            time.sleep(intervalo/144)
+        yield p
 
         
