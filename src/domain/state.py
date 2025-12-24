@@ -164,7 +164,7 @@ class Estado:
                                 veiculos_disponiveis.remove(veiculo)
                                 self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= r1.distance)
                                 self.atualizar_custos(veiculo, passageiros=True, distancia_percorrida= r2.distance)
-                                Thread(target=veiculo.atender_pedido, args=(r1.path, r2.path, pedido,)).start()
+                                Thread(target=veiculo.atender_pedido, args=(self.mapa, r1.path, r2.path, pedido,)).start()
                                 self.pedidos_completados+=1
                                 break
         
@@ -176,7 +176,7 @@ class Estado:
                     results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao, veiculo, heuristica)
                     if results is not None:
                         self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= results.distancia)
-                        Thread(target=veiculo.abastecer(), args=(results.path,)).start()
+                        Thread(target=veiculo.abastecer(), args=(self.mapa, results.path,)).start()
     
     def get_custo_total(self) -> float:
         for p in self.pedidos:

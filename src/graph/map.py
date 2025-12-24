@@ -42,6 +42,9 @@ class Map:
         for i in range(len(caminho)-1):
             total += self.get_street_distance(caminho[i], caminho[i+1])
         return total
+    
+    def get_aresta(self, name1: str, name2: str) -> tuple: # (custo, tipo_zona, cruzamentos) -- definir plss
+        pass
 
     def get_neighbours(self, place: Place):
         return self.graph.get(place, [])

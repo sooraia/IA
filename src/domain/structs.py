@@ -4,7 +4,8 @@ import time
 from enum import Enum
 
 from src.graph.place import Place
-from src.utils import horaSimuladaAtual, distancia_euclidiana_to_place
+from src.graph.map import Map
+from src.utils import horaSimuladaAtual, distancia_euclidiana
 
 velocidade_media = 40  # km/h
 
@@ -63,12 +64,11 @@ class Veiculo:
     def __hash__(self) -> int:
         return hash(self.id)
     
-    def go_to_location(self, new_location: Place):
-        travel_distance = distancia_euclidiana_to_place(self.posicao[0], self.posicao[1], new_location)
-        new_position = new_location.coord
+    def go_to_position(self, new_position: tuple[float, float], velocidade: float):
+        travel_distance = distancia_euclidiana(self.posicao[0], self.posicao[1], new_position[0], new_position[1])
         distancia_percorrida = 0
 
-        distancia_por_segundo_real = velocidade_media * (144 / 3600)
+        distancia_por_segundo_real = velocidade * (144 / 3600)
 
         while distancia_percorrida < travel_distance:
             distancia_percorrida += distancia_por_segundo_real
@@ -83,11 +83,20 @@ class Veiculo:
                             self.posicao[1] + (new_position[1] - self.posicao[1]) * progresso)
             time.sleep(1)
         
-        self.localizacao = new_location.name
         self.posicao = new_position
+    
+    def go_to_location(self, mapa, new_location: Place):
+        (_, tipo_zona, cruzamentos) = mapa.get_aresta(self.localizacao, new_location.name)
+        velocidade = velocidade_media * mapa.get_fator_transito(tipo_zona)
+        
+        for cruzamento in cruzamentos:
+            self.go_to_position(cruzamento, velocidade)
+        self.go_to_position(new_location.coord, velocidade)
+        
+        self.localizacao = new_location.name
         
 
-    def atender_pedido(self, path_origem, path_destino, pedido):
+    def atender_pedido(self, mapa, path_origem, path_destino, pedido):
         pedido.estado = EstadoPedido.ATRIBUIDO
         print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}")
         autonomia_inicio = self.autonomia_atual
@@ -95,12 +104,12 @@ class Veiculo:
         # atualiza o tempo de espera se a atribuicao for depois do horario pretendido
         if pedido.horario_pretendido < horaSimuladaAtual():
             pedido.tempo_espera = horaSimuladaAtual() - pedido.horario_pretendido
-        print("...")
+
         #desloca-se para a origem
         self.estado = EstadoVeiculo.OCUPADO
 
         for localizacao in path_origem:
-            self.go_to_location(localizacao)
+            self.go_to_location(mapa, localizacao)
 
         # espera ate ao horario pretendido e atualiza o tempo de espera
         if pedido.horario_pretendido > horaSimuladaAtual():
@@ -111,17 +120,16 @@ class Veiculo:
         #desloca-se para o destino
         pedido.estado = EstadoPedido.EM_TRANSPORTE
         for localizacao in path_destino:
-            self.go_to_location(localizacao)
+            self.go_to_location(mapa, localizacao)
         pedido.estado = EstadoPedido.CONCLUIDO
         self.estado = EstadoVeiculo.DISPONIVEL
-        print("gastou:" + str(autonomia_inicio - self.autonomia_atual) + " / " + str(self.autonomia_max))
         print(f"Veículo {self.id} concluiu pedido {pedido.id}")
 
-    def abastecer(self, path):
+    def abastecer(self, mapa, path):
         self.estado = EstadoVeiculo.ABASTECER
         print(f"Veículo {self.id} a abastecer/carregar")
         for localizacao in path:
-            self.go_to_location(localizacao)
+            self.go_to_location(mapa, localizacao)
 
         tempo_total_carregamento = self.tempo_recarga_abastecimento * (self.autonomia_max - self.autonomia_atual) / self.autonomia_max
         
