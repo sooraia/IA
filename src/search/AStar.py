@@ -45,19 +45,17 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
             total_cost = map_graph.calc_total_distance(reconst_path)
             return SearchResult(reconst_path, total_cost, closed_list, time_taken)
 
-        for (m, dist, zona, _) in map_graph.get_neighbours(n):
-            transito = map_graph.get_fator_transito(zona, hora_atual)
-
-            weight = dist * transito
+        for (m, zona, _) in map_graph.get_neighbours(n):
+            cost = map_graph.get_cost(n, m, zona, hora_atual)
 
             if m not in open_list and m not in closed_list:
                 open_list.add(m)
                 parents[m] = n
-                g[m] = g[n] + weight
+                g[m] = g[n] + cost
 
             else:
-                if g[m] > g[n] + weight:
-                    g[m] = g[n] + weight
+                if g[m] > g[n] + cost:
+                    g[m] = g[n] + cost
                     parents[m] = n
 
                     if m in closed_list:

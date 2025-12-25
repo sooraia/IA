@@ -16,6 +16,8 @@ from search.DFS import dfs_search
 from search.UCS import ucs_search
 from search.AStar import a_star_search
 from search.heuristics import distance_heuristic
+from search.iterative import iterative
+from search.Greedy import greedy_search
 
 def build_map():
     map_graph = Map()
@@ -45,112 +47,113 @@ def build_map():
     for i in range (N_POSTOS_CARREGAMENTO):
         map_graph.add_place(PlaceType.ESTACAO_DE_CARGA, postos_de_carregamento_coords[i])
 
+   
     """ Add edges to map graph """
-    map_graph.add_edge("R1", "G1", 1.5, "Normal", [])
-    map_graph.add_edge("R1", "R3", 2.05, "Residencial", [(4.7, 7.85)])
-    map_graph.add_edge("R1", "R5", 2.65, "Normal", [(4.7, 6.65)])
-    map_graph.add_edge("R1", "G3", 2.08, "Residencial", [])
+    map_graph.add_edge("R1", "G1", "Normal", [])
+    map_graph.add_edge("R1", "R3", "Residencial", [(4.7, 7.85)])
+    map_graph.add_edge("R1", "R5", "Normal", [(4.7, 6.65)])
+    map_graph.add_edge("R1", "G3", "Residencial", [])
 
-    map_graph.add_edge("G1", "R2", 2.75, "Normal", [(1.8, 8.45), (1.45, 8.2), (1.5, 7.8)])
-    map_graph.add_edge("G1", "R4", 5.55, "Normal", [(1.8, 8.45), (1.45, 8.2), (1.05, 8.05), (0.25, 7.4), (0.1, 6.8), (0.05, 6.7)])
-    map_graph.add_edge("G1", "E1", 2.3, "Normal", [])
-    map_graph.add_edge("G1", "R5", 2.45, "Normal", [(3.2, 6.65)])
+    map_graph.add_edge("G1", "R2", "Normal", [(1.8, 8.45), (1.45, 8.2), (1.5, 7.8)])
+    map_graph.add_edge("G1", "R4", "Normal", [(1.8, 8.45), (1.45, 8.2), (1.05, 8.05), (0.25, 7.4), (0.1, 6.8), (0.05, 6.7)])
+    map_graph.add_edge("G1", "E1", "Normal", [])
+    map_graph.add_edge("G1", "R5", "Normal", [(3.2, 6.65)])
 
-    map_graph.add_edge("R2", "R4", 4.3, "Normal", [(1.5, 7.8), (1.45, 8.2), (1.05, 8.05), (0.25, 7.4), (0.1, 6.8), (0.05, 6.7)])
-    map_graph.add_edge("R2", "R8", 4.2, "Normal", [(2.65, 6.65), (1.3, 5.55), (1.7, 5.30)])
-    map_graph.add_edge("R2", "E1", 1.9, "Normal", [(3.1, 6.15)])
-    map_graph.add_edge("R2", "R5", 2.45, "Normal", [(2.65, 6.65)])
+    map_graph.add_edge("R2", "R4", "Normal", [(1.5, 7.8), (1.45, 8.2), (1.05, 8.05), (0.25, 7.4), (0.1, 6.8), (0.05, 6.7)])
+    map_graph.add_edge("R2", "R8", "Normal", [(2.65, 6.65), (1.3, 5.55), (1.7, 5.30)])
+    map_graph.add_edge("R2", "E1", "Normal", [(3.1, 6.15)])
+    map_graph.add_edge("R2", "R5", "Normal", [(2.65, 6.65)])
 
-    map_graph.add_edge("R4", "R5", 4.35, "Normal", [(1.3, 5.55), (2.65, 6.65)])
-    map_graph.add_edge("R4", "E1", 3.85, "Normal", [(1.3, 5.55), (2.65, 6.65), (3.1, 6.15)])
-    map_graph.add_edge("R4", "R8", 2.5, "Normal", [(1.3, 5.55), (1.7, 5.30)])
-    map_graph.add_edge("R4", "G4", 1.0, "Normal", [])
+    map_graph.add_edge("R4", "R5", "Normal", [(1.3, 5.55), (2.65, 6.65)])
+    map_graph.add_edge("R4", "E1", "Normal", [(1.3, 5.55), (2.65, 6.65), (3.1, 6.15)])
+    map_graph.add_edge("R4", "R8", "Normal", [(1.3, 5.55), (1.7, 5.30)])
+    map_graph.add_edge("R4", "G4", "Normal", [])
 
-    map_graph.add_edge("G4", "R8", 1.7, "Normal", [])
-    map_graph.add_edge("G4", "R13", 3.35, "Normal", [(1.3, 4.5)])
-    map_graph.add_edge("G4", "R12", 2.75, "Normal", [])
+    map_graph.add_edge("G4", "R8", "Normal", [])
+    map_graph.add_edge("G4", "R13", "Normal", [(1.3, 4.5)])
+    map_graph.add_edge("G4", "R12", "Normal", [])
 
-    map_graph.add_edge("R12", "R13", 2.0, "Normal", [(1.3, 1.8)])
-    map_graph.add_edge("R12", "G5", 2.1, "Normal", [])
+    map_graph.add_edge("R12", "R13", "Normal", [(1.3, 1.8)])
+    map_graph.add_edge("R12", "G5", "Normal", [])
 
-    map_graph.add_edge("R17", "R18", 1.0, "Normal", [(2.35, 0)])
-    map_graph.add_edge("R17", "G5", 1.8, "Normal", [])
+    map_graph.add_edge("R17", "R18", "Normal", [(2.35, 0)])
+    map_graph.add_edge("R17", "G5", "Normal", [])
 
-    map_graph.add_edge("R18", "G5", 2.8, "Normal", [(2.55, 1.8)])
-    map_graph.add_edge("R18", "R9", 3.45, "Normal", [(2.7, 1.4), (2.55, 1.8)])
-    map_graph.add_edge("R18", "R19", 1.15, "Old town", [])
+    map_graph.add_edge("R18", "G5", "Normal", [(2.55, 1.8)])
+    map_graph.add_edge("R18", "R9", "Normal", [(2.7, 1.4), (2.55, 1.8)])
+    map_graph.add_edge("R18", "R19", "Old town", [])
 
-    map_graph.add_edge("E3", "R19", 1.1, "Old town", [])
-    map_graph.add_edge("E3", "R15", 3.15, "Old town", [(4.39, 1.1), (5.4, 1.75), (6.0, 2.8)])
-    map_graph.add_edge("E3", "R20", 0.55, "Old town", [])
+    map_graph.add_edge("E3", "R19", "Old town", [])
+    map_graph.add_edge("E3", "R15", "Old town", [(4.39, 1.1), (5.4, 1.75), (6.0, 2.8)])
+    map_graph.add_edge("E3", "R20", "Old town", [])
 
-    map_graph.add_edge("R20", "R21", 2.15, "Old town", [(6.55, 0.95)])
+    map_graph.add_edge("R20", "R21", "Old town", [(6.55, 0.95)])
 
-    map_graph.add_edge("R21", "R15", 1.9, "Old town", [(5.65, 2.35), (6.0, 2.8)])
-    map_graph.add_edge("R21", "G6", 1.5, "Old town", [(7.15, 2.2)])
+    map_graph.add_edge("R21", "R15", "Old town", [(5.65, 2.35), (6.0, 2.8)])
+    map_graph.add_edge("R21", "G6", "Old town", [(7.15, 2.2)])
 
-    map_graph.add_edge("G6", "R16", 1.55, "Old town", [(8.1, 3.2), (8.7, 3.45)])
-    map_graph.add_edge("G6", "R15", 1.55, "Old town", [(7.55, 3)])
-    map_graph.add_edge("G6", "R11", 1.9, "Old town", [(7.65, 3.1)])
+    map_graph.add_edge("G6", "R16", "Old town", [(8.1, 3.2), (8.7, 3.45)])
+    map_graph.add_edge("G6", "R15", "Old town", [(7.55, 3)])
+    map_graph.add_edge("G6", "R11", "Old town", [(7.65, 3.1)])
 
-    map_graph.add_edge("R16", "R11", 1.95, "Old town", [(8.6, 4.8)])
-    map_graph.add_edge("R16", "R7", 2.3, "Old town", [])
+    map_graph.add_edge("R16", "R11", "Old town", [(8.6, 4.8)])
+    map_graph.add_edge("R16", "R7", "Old town", [])
 
-    map_graph.add_edge("R7", "E2", 0.5, "Residencial", [])
+    map_graph.add_edge("R7", "E2", "Residencial", [])
 
-    map_graph.add_edge("G2", "E2", 1.95, "Residencial", [(7.65, 6.2)])
-    map_graph.add_edge("G2", "R11", 2.75, "Residencial", [])
-    map_graph.add_edge("G2", "R3", 1.5, "Residencial", [(6.15, 7.6)])
-    map_graph.add_edge("G2", "R6", 2.95, "Residencial", [(6.15, 7.6)])
+    map_graph.add_edge("G2", "E2", "Residencial", [(7.65, 6.2)])
+    map_graph.add_edge("G2", "R11", "Residencial", [])
+    map_graph.add_edge("G2", "R3", "Residencial", [(6.15, 7.6)])
+    map_graph.add_edge("G2", "R6", "Residencial", [(6.15, 7.6)])
 
-    map_graph.add_edge("R3", "R5", 3.5, "Residencial", [(4.7, 7.85), (4.7, 6.65)])
-    map_graph.add_edge("R3", "R6", 1.45, "Residencial", [])
+    map_graph.add_edge("R3", "R5", "Residencial", [(4.7, 7.85), (4.7, 6.65)])
+    map_graph.add_edge("R3", "R6", "Residencial", [])
 
-    map_graph.add_edge("R5", "E1", 1.15, "Normal", [(3.2, 6.65), (2.65, 6.65), (3.1,6.15)])
-    map_graph.add_edge("R5", "G3", 1.85, "Residencial", [(4.75, 6.65)])
-    map_graph.add_edge("R5", "R6", 2.8, "Residencial", [(4.75, 6.65), (4.75, 6.2)])
+    map_graph.add_edge("R5", "E1", "Normal", [(3.2, 6.65), (2.65, 6.65), (3.1,6.15)])
+    map_graph.add_edge("R5", "G3", "Residencial", [(4.75, 6.65)])
+    map_graph.add_edge("R5", "R6", "Residencial", [(4.75, 6.65), (4.75, 6.2)])
 
-    map_graph.add_edge("R6", "E1", 2.95, "Residencial", [])
-    map_graph.add_edge("R6", "G3", 1.95, "Residencial", [(4.75, 6.2)])
-    map_graph.add_edge("R6", "R15", 3.15, "Residencial", [])
-    map_graph.add_edge("R6", "R11", 2.8, "Residencial", [(7.65, 6.2)])
-    map_graph.add_edge("R6", "E2", 2.0, "Residencial", [])
+    map_graph.add_edge("R6", "E1", "Residencial", [])
+    map_graph.add_edge("R6", "G3", "Residencial", [(4.75, 6.2)])
+    map_graph.add_edge("R6", "R15", "Residencial", [])
+    map_graph.add_edge("R6", "R11", "Residencial", [(7.65, 6.2)])
+    map_graph.add_edge("R6", "E2", "Residencial", [])
 
-    map_graph.add_edge("G3", "E1", 2.0, "Residencial", [(4.75, 6.2)])
-    map_graph.add_edge("G3", "R10", 1.05, "Residencial", [])
+    map_graph.add_edge("G3", "E1", "Residencial", [(4.75, 6.2)])
+    map_graph.add_edge("G3", "R10", "Residencial", [])
 
-    map_graph.add_edge("E1", "R8", 3.1, "Normal", [(3.1, 6.15), (2.65, 6.65), (1.3, 5.55), (1.7,5.30)])
-    map_graph.add_edge("E1", "R9", 2.8, "Normal", [(3.1, 6.15), (3.65, 5.3), (1.15, 4.9), (2.55, 4.5)])
-    map_graph.add_edge("E1", "R14", 3.55, "Old town", [(3.1, 6.15), (3.65, 5.3), (3.8, 4.8)])
-    map_graph.add_edge("E1", "R10", 2.6, "Residencial", [(3.1, 6.15), (3.65, 5.3), (3.8, 4.8), (3.8, 4.5)])
+    map_graph.add_edge("E1", "R8", "Normal", [(3.1, 6.15), (2.65, 6.65), (1.3, 5.55), (1.7,5.30)])
+    map_graph.add_edge("E1", "R9", "Normal", [(3.1, 6.15), (3.65, 5.3), (1.15, 4.9), (2.55, 4.5)])
+    map_graph.add_edge("E1", "R14", "Old town", [(3.1, 6.15), (3.65, 5.3), (3.8, 4.8)])
+    map_graph.add_edge("E1", "R10", "Residencial", [(3.1, 6.15), (3.65, 5.3), (3.8, 4.8), (3.8, 4.5)])
 
-    map_graph.add_edge("R11", "E2", 1.8, "Residencial", [(7.65, 6.2)])
-    map_graph.add_edge("R11", "R10", 2.95, "Residencial", [(7.1, 4.8), (5.50, 4.5)])
-    map_graph.add_edge("R11", "R15", 3.1, "Old town", [(7.65, 3.1), (7.55, 3.0)])
+    map_graph.add_edge("R11", "E2", "Residencial", [(7.65, 6.2)])
+    map_graph.add_edge("R11", "R10", "Residencial", [(7.1, 4.8), (5.50, 4.5)])
+    map_graph.add_edge("R11", "R15", "Old town", [(7.65, 3.1), (7.55, 3.0)])
 
-    map_graph.add_edge("R10", "R8", 2.9, "Residencial", [])
-    map_graph.add_edge("R10", "R9", 2.65, "Residencial", [(2.55, 4.5)])
-    map_graph.add_edge("R10", "R14", 2.75, "Residencial", [(3.8, 4.5)])
-    map_graph.add_edge("R10", "R15", 3.05, "Residencial", [(5.50, 4.5)])
+    map_graph.add_edge("R10", "R8", "Residencial", [])
+    map_graph.add_edge("R10", "R9", "Residencial", [(2.55, 4.5)])
+    map_graph.add_edge("R10", "R14", "Residencial", [(3.8, 4.5)])
+    map_graph.add_edge("R10", "R15", "Residencial", [(5.50, 4.5)])
 
-    map_graph.add_edge("R15", "R9", 4.45, "Old town", [(3.8, 3.45), (3.8, 3.75)])
-    map_graph.add_edge("R15", "R14", 2.35, "Old town", [(5.2, 3.45), ((3.8, 3.45))])
-    map_graph.add_edge("R15", "R19", 2.85, "Old town", [(6.0, 2.8), (5.65, 2.35), (5.4, 1.75), (4.39, 1.1)])
+    map_graph.add_edge("R15", "R9", "Old town", [(3.8, 3.45), (3.8, 3.75)])
+    map_graph.add_edge("R15", "R14", "Old town", [(5.2, 3.45), ((3.8, 3.45))])
+    map_graph.add_edge("R15", "R19", "Old town", [(6.0, 2.8), (5.65, 2.35), (5.4, 1.75), (4.39, 1.1)])
 
-    map_graph.add_edge("R14", "R19", 1.8, "Old town", [(3.9, 2.0)])
-    map_graph.add_edge("R14", "G5", 2.55, "Old town", [(3.9, 2.0), (2.55, 1.8)])
-    map_graph.add_edge("R14", "R13", 2.55, "Old town", [(3.8, 2.5)])
-    map_graph.add_edge("R14", "R9", 2.6, "Old town", [(3.8, 3.75)])
+    map_graph.add_edge("R14", "R19", "Old town", [(3.9, 2.0)])
+    map_graph.add_edge("R14", "G5", "Old town", [(3.9, 2.0), (2.55, 1.8)])
+    map_graph.add_edge("R14", "R13", "Old town", [(3.8, 2.5)])
+    map_graph.add_edge("R14", "R9", "Old town", [(3.8, 3.75)])
 
-    map_graph.add_edge("R9", "G5", 2.65, "Normal", [(2.55, 1.8)])
-    map_graph.add_edge("R9", "R13", 2.75, "Normal", [(2.55, 2.5)])
-    map_graph.add_edge("R9", "R8", 1.25, "Normal", [(2.55, 4.5)])
+    map_graph.add_edge("R9", "G5", "Normal", [(2.55, 1.8)])
+    map_graph.add_edge("R9", "R13", "Normal", [(2.55, 2.5)])
+    map_graph.add_edge("R9", "R8", "Normal", [(2.55, 4.5)])
 
-    map_graph.add_edge("G5", "R13", 1.5, "Normal", [(1.3, 1.8)])
-    map_graph.add_edge("G5", "R19", 2.35, "Old town", [(2.55, 1.8), (3.9, 2.0)])
+    map_graph.add_edge("G5", "R13", "Normal", [(1.3, 1.8)])
+    map_graph.add_edge("G5", "R19", "Old town", [(2.55, 1.8), (3.9, 2.0)])
 
-    map_graph.add_edge("R13", "R8", 2.45, "Normal", [(1.3, 4.5)])
-    map_graph.add_edge("R13", "R19", 3.75, "Old town", [(3.8, 2.5), (3.9, 2.0)])
+    map_graph.add_edge("R13", "R8", "Normal", [(1.3, 4.5)])
+    map_graph.add_edge("R13", "R19", "Old town", [(3.8, 2.5), (3.9, 2.0)])
 
     return map_graph
 
@@ -160,7 +163,7 @@ if __name__ == "__main__":
     map_graph_instance = build_map()
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
-    estado.run(a_star_search, distance_heuristic)
+    estado.run(greedy_search, distance_heuristic)
 
     # bfs_search(map_graph_instance, "R1", "R21")
     # print("---- BFS Search ----")

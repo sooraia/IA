@@ -1,6 +1,4 @@
-from dataclasses import dataclass, field
-import datetime
-import sys
+from dataclasses import dataclass
 import threading
 from typing import List, Dict, Optional
 from src.domain.pedido_gerador import gerar_pedidos, gerar_pedidos_data
@@ -177,6 +175,8 @@ class Estado:
                                 veiculos_disponiveis.remove(veiculo)
                                 self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= r1.distance)
                                 self.atualizar_custos(veiculo, passageiros=True, distancia_percorrida= r2.distance)
+                                veiculo.estado = EstadoVeiculo.OCUPADO
+                                pedido.estado = EstadoPedido.ATRIBUIDO
                                 Thread(target=veiculo.atender_pedido, args=(self.mapa, r1.path, r2.path, pedido,)).start()
                                 self.pedidos_completados+=1
                                 break

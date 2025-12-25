@@ -42,13 +42,15 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
         visited.add(current_node)
 
         # Explorar vizinhos
-        for (neighbor, dist, zona, _) in map_graph.get_neighbours(current_node):
+        for (neighbor, zona, _) in map_graph.get_neighbours(current_node):
 
             if neighbor not in visited:
-                transito = map_graph.get_fator_transito(zona, hora_atual)
+                # transito = map_graph.get_fator_transito(zona, hora_atual)
                 
-                weight = dist * transito
-                new_cost = cost + weight
+                # weight = dist * transito
+                # new_cost = cost + weight
+                # new_path = path + [neighbor]
+                new_cost = map_graph.get_cost(current_node, neighbor, zona, hora_atual)
                 new_path = path + [neighbor]
                 heapq.heappush(pq, (new_cost, id(neighbor), neighbor, new_path))
 

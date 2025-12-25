@@ -1,6 +1,7 @@
 from time import process_time
 from graph.map import Map, Place, PlaceType
 from search.SearchResult import SearchResult
+from src.utils import horaSimuladaAtual
 
 # Procura em profundidade com limite de profundidade
 def dfs_depth(map: Map, start_name: str, target_name: str, max_depth: int, path=None, visited=None, current_depth=0, distance_atual=0) -> SearchResult:
@@ -26,8 +27,9 @@ def dfs_depth(map: Map, start_name: str, target_name: str, max_depth: int, path=
     
     visited.add(start_place)
 
-    for (neighbor, cost, _, _) in map.get_neighbours(start_place):
+    for (neighbor, place_type, _) in map.get_neighbours(start_place):
         if neighbor not in visited:
+            cost = map.get_cost(start_place, neighbor, place_type, horaSimuladaAtual())
             result = dfs_depth(map, neighbor.get_name(), target_name, max_depth, path, visited, current_depth + 1, distance_atual + cost)
             if result is not None:
                 path.pop()

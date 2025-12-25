@@ -2,7 +2,6 @@
 import datetime
 from time import time
 
-
 hora_real_inicial = datetime.datetime.now()
 
 def distancia_manhattan(place1, place2):

@@ -6,8 +6,7 @@ from enum import Enum
 from src.graph.place import Place
 from src.graph.map import Map
 from src.utils import horaSimuladaAtual, distancia_euclidiana
-
-velocidade_media = 40  # km/h
+from src.domain import velocidade_media
 
 class TipoVeiculo(Enum):
     ELETRICO = "eletrico"
@@ -84,10 +83,11 @@ class Veiculo:
         self.posicao = new_position
     
     def go_to_location(self, mapa, new_location: Place):
-        print(self.localizacao + " -> " + new_location.name)
+        if(self.id=="AA-01-EE"):
+            print(self.localizacao + " -> " + new_location.name)
         if self.localizacao == new_location.name:
             return
-        (_, tipo_zona, cruzamentos) = mapa.get_aresta(self.localizacao, new_location.name)
+        (tipo_zona, cruzamentos) = mapa.get_aresta(self.localizacao, new_location.name)
         print(cruzamentos)
         velocidade = velocidade_media / mapa.get_fator_transito(tipo_zona, horaSimuladaAtual())
         
@@ -99,9 +99,9 @@ class Veiculo:
         
 
     def atender_pedido(self, mapa, path_origem, path_destino, pedido):
-        pedido.estado = EstadoPedido.ATRIBUIDO
-        print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}")
-        print(f"Localizações a percorrer: {[loc.name for loc in path_origem + path_destino]}") 
+        if(self.id=="AA-01-EE"):
+            print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}, estado= {self.estado}")
+            print(f"Localizações a percorrer: {[loc.name for loc in path_origem + path_destino]}") 
         autonomia_inicio = self.autonomia_atual
 
         # atualiza o tempo de espera se a atribuicao for depois do horario pretendido
@@ -109,8 +109,6 @@ class Veiculo:
             pedido.tempo_espera = horaSimuladaAtual() - pedido.horario_pretendido
 
         #desloca-se para a origem
-        self.estado = EstadoVeiculo.OCUPADO
-
         path_origem.pop(0)
         for localizacao in path_origem:
             self.go_to_location(mapa, localizacao)
@@ -129,14 +127,16 @@ class Veiculo:
 
         pedido.estado = EstadoPedido.CONCLUIDO
         self.estado = EstadoVeiculo.DISPONIVEL
-        print("----------------------------------------------------------------------")
-        print(f"Autonomia antes da viagem: {autonomia_inicio:.2f} | Autonomia após a viagem: {self.autonomia_atual:.2f}")
-        print(f"Veículo {self.id} concluiu pedido {pedido.id}")
-        print("----------------------------------------------------------------------")
+        if(self.id=="AA-01-EE"):
+            print("----------------------------------------------------------------------")
+            print(f"Autonomia antes da viagem: {autonomia_inicio:.2f} | Autonomia após a viagem: {self.autonomia_atual:.2f}")
+            print(f"Veículo {self.id} concluiu pedido {pedido.id}")
+            print("----------------------------------------------------------------------")
 
     def abastecer(self, mapa, path):
         self.estado = EstadoVeiculo.ABASTECER
         print(f"Veículo {self.id} a abastecer/carregar")
+        path.pop(0)
         for localizacao in path:
             self.go_to_location(mapa, localizacao)
 
