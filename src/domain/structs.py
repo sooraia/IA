@@ -75,14 +75,12 @@ class Veiculo:
             if distancia_percorrida > travel_distance:
                 distancia_percorrida = travel_distance
             
-            consumo = self.calcular_consumo_viagem(distancia_por_segundo_real)
-            self.autonomia_atual -= consumo
-            
             progresso = distancia_percorrida / travel_distance
             self.posicao = (self.posicao[0] + (new_position[0] - self.posicao[0]) * progresso,
                             self.posicao[1] + (new_position[1] - self.posicao[1]) * progresso)
+            
             time.sleep(1)
-        
+        self.autonomia_atual -= travel_distance
         self.posicao = new_position
     
     def go_to_location(self, mapa, new_location: Place):
@@ -91,7 +89,7 @@ class Veiculo:
             return
         (_, tipo_zona, cruzamentos) = mapa.get_aresta(self.localizacao, new_location.name)
         print(cruzamentos)
-        velocidade = velocidade_media * mapa.get_fator_transito(tipo_zona, horaSimuladaAtual())
+        velocidade = velocidade_media / mapa.get_fator_transito(tipo_zona, horaSimuladaAtual())
         
         for cruzamento in cruzamentos:
             self.go_to_position(cruzamento, velocidade)
@@ -103,6 +101,7 @@ class Veiculo:
     def atender_pedido(self, mapa, path_origem, path_destino, pedido):
         pedido.estado = EstadoPedido.ATRIBUIDO
         print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}")
+        print(f"Localizações a percorrer: {[loc.name for loc in path_origem + path_destino]}") 
         autonomia_inicio = self.autonomia_atual
 
         # atualiza o tempo de espera se a atribuicao for depois do horario pretendido
@@ -112,6 +111,7 @@ class Veiculo:
         #desloca-se para a origem
         self.estado = EstadoVeiculo.OCUPADO
 
+        path_origem.pop(0)
         for localizacao in path_origem:
             self.go_to_location(mapa, localizacao)
 
@@ -122,12 +122,17 @@ class Veiculo:
             pedido.tempo_espera = datetime.timedelta(0)
 
         #desloca-se para o destino
+        path_destino.pop(0)
         pedido.estado = EstadoPedido.EM_TRANSPORTE
         for localizacao in path_destino:
             self.go_to_location(mapa, localizacao)
+
         pedido.estado = EstadoPedido.CONCLUIDO
         self.estado = EstadoVeiculo.DISPONIVEL
+        print("----------------------------------------------------------------------")
+        print(f"Autonomia antes da viagem: {autonomia_inicio:.2f} | Autonomia após a viagem: {self.autonomia_atual:.2f}")
         print(f"Veículo {self.id} concluiu pedido {pedido.id}")
+        print("----------------------------------------------------------------------")
 
     def abastecer(self, mapa, path):
         self.estado = EstadoVeiculo.ABASTECER

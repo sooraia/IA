@@ -40,15 +40,12 @@ class Map:
         distancia = 0
         for (neighbour, _, _, cruzamentos) in neighbours:
             if neighbour == node2:
-                print(cruzamentos)
                 if(len(cruzamentos) > 0):
                     last_node = cruzamentos[0]
                     distancia += distancia_euclidiana(node1.coord[0], node1.coord[1], cruzamentos[0][0], cruzamentos[0][1])
                 for i in range(len(cruzamentos)-1):
                     distancia += distancia_euclidiana(cruzamentos[i][0], cruzamentos[i][1], cruzamentos[i + 1][0], cruzamentos[i + 1][1])
                     last_node = cruzamentos[i + 1]
-                print(last_node)
-                print(node2.coord)
                 distancia += distancia_euclidiana(node2.coord[0], node2.coord[1], last_node[0], last_node[1])
                 return distancia
         return None
@@ -59,7 +56,7 @@ class Map:
             total += self.get_distancia_rota(caminho[i], caminho[i+1])
         return total
     
-    def get_aresta(self, name1: str, name2: str) -> tuple: # (custo, tipo_zona, cruzamentos) -- definir plss
+    def get_aresta(self, name1: str, name2: str) -> tuple: # (custo, tipo_zona, cruzamentos)
         place1 = self.get_place(name1)
         place2 = self.get_place(name2)
         if place1 is None or place2 is None:
