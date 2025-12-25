@@ -189,6 +189,7 @@ class Estado:
                     results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao, veiculo, heuristica)
                     if results is not None:
                         self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= results.distancia)
+                        self.estado = EstadoVeiculo.ABASTECER
                         Thread(target=veiculo.abastecer(), args=(self.mapa, results.path,)).start()
     
     def get_custo_total(self) -> float:

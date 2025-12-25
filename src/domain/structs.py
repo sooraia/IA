@@ -83,12 +83,9 @@ class Veiculo:
         self.posicao = new_position
     
     def go_to_location(self, mapa, new_location: Place):
-        if(self.id=="AA-01-EE"):
-            print(self.localizacao + " -> " + new_location.name)
         if self.localizacao == new_location.name:
             return
         (tipo_zona, cruzamentos) = mapa.get_aresta(self.localizacao, new_location.name)
-        print(cruzamentos)
         velocidade = velocidade_media / mapa.get_fator_transito(tipo_zona, horaSimuladaAtual())
         
         for cruzamento in cruzamentos:
@@ -99,9 +96,8 @@ class Veiculo:
         
 
     def atender_pedido(self, mapa, path_origem, path_destino, pedido):
-        if(self.id=="AA-01-EE"):
-            print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}, estado= {self.estado}")
-            print(f"Localizações a percorrer: {[loc.name for loc in path_origem + path_destino]}") 
+        print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}, estado= {self.estado}")
+        print(f"Localizações a percorrer: {[loc.name for loc in path_origem + path_destino]}") 
         autonomia_inicio = self.autonomia_atual
 
         # atualiza o tempo de espera se a atribuicao for depois do horario pretendido
@@ -127,14 +123,12 @@ class Veiculo:
 
         pedido.estado = EstadoPedido.CONCLUIDO
         self.estado = EstadoVeiculo.DISPONIVEL
-        if(self.id=="AA-01-EE"):
-            print("----------------------------------------------------------------------")
-            print(f"Autonomia antes da viagem: {autonomia_inicio:.2f} | Autonomia após a viagem: {self.autonomia_atual:.2f}")
-            print(f"Veículo {self.id} concluiu pedido {pedido.id}")
-            print("----------------------------------------------------------------------")
+        print("----------------------------------------------------------------------")
+        print(f"Autonomia antes da viagem: {autonomia_inicio:.2f} | Autonomia após a viagem: {self.autonomia_atual:.2f}")
+        print(f"Veículo {self.id} concluiu pedido {pedido.id}")
+        print("----------------------------------------------------------------------")
 
     def abastecer(self, mapa, path):
-        self.estado = EstadoVeiculo.ABASTECER
         print(f"Veículo {self.id} a abastecer/carregar")
         path.pop(0)
         for localizacao in path:

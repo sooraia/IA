@@ -29,8 +29,8 @@ def dfs_depth(map: Map, start_name: str, target_name: str, max_depth: int, path=
 
     for (neighbor, place_type, _) in map.get_neighbours(start_place):
         if neighbor not in visited:
-            cost = map.get_cost(start_place, neighbor, place_type, horaSimuladaAtual())
-            result = dfs_depth(map, neighbor.get_name(), target_name, max_depth, path, visited, current_depth + 1, distance_atual + cost)
+            distance = map.get_distancia_rota(start_place, neighbor)
+            result = dfs_depth(map, neighbor.get_name(), target_name, max_depth, path, visited, current_depth + 1, distance_atual + distance)
             if result is not None:
                 path.pop()
                 return result

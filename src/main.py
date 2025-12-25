@@ -163,15 +163,7 @@ if __name__ == "__main__":
     map_graph_instance = build_map()
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
-    estado.run(greedy_search, distance_heuristic)
-
-    # bfs_search(map_graph_instance, "R1", "R21")
-    # print("---- BFS Search ----")
-    # result_bfs = bfs_search(map_graph_instance, "R1", "R21")
-    # if result_bfs.path is not None:
-    #     print("Caminho encontrado pela BFS:")
-    #     print(" -> ".join([place.name for place in result_bfs.path]))
-
+    estado.run(iterative, distance_heuristic)
 
     # ucs_search(map_graph_instance, "R1", "R21")
     # print("---- UCS Search ----")
