@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 import datetime
+import sys
 import threading
 from typing import List, Dict, Optional
 from src.domain.pedido_gerador import gerar_pedidos, gerar_pedidos_data
@@ -94,8 +95,14 @@ class Estado:
     def get_veiculos_possiveis(self, pedido: Pedido, veiculos_disponiveis: List[Veiculo]) -> List[Veiculo]:
         veiculos_possiveis = []
         for veiculo in veiculos_disponiveis:
-            distancia_min = distancia_euclidiana(self.mapa.get_place(veiculo.localizacao),self.mapa.get_place(pedido.localizacao_origem)) 
-            + distancia_euclidiana(self.mapa.get_place(pedido.localizacao_origem),self.mapa.get_place(pedido.localizacao_destino)) # limite inferior oara a distancia
+            distancia_min = (distancia_euclidiana(self.mapa.get_place(veiculo.localizacao).coord[0], 
+                                                 self.mapa.get_place(veiculo.localizacao).coord[1], 
+                                                 self.mapa.get_place(pedido.localizacao_origem).coord[0],
+                                                 self.mapa.get_place(pedido.localizacao_origem).coord[1])
+                            + distancia_euclidiana(self.mapa.get_place(pedido.localizacao_origem).coord[0],
+                                                self.mapa.get_place(pedido.localizacao_origem).coord[1],
+                                                self.mapa.get_place(pedido.localizacao_destino).coord[0],
+                                                self.mapa.get_place(pedido.localizacao_destino).coord[1])) # limite inferior para a distancia
             if veiculo.pode_atender_pedido(
                 pedido.numero_passageiros,
                 distancia= distancia_min,
@@ -105,8 +112,14 @@ class Estado:
         return veiculos_possiveis
 
     def heuristica_atribuicao_pedidos(self, veiculo, pedido):
-        dist = distancia_euclidiana(self.mapa.get_place(veiculo.localizacao), self.mapa.get_place(pedido.localizacao_origem)) 
-        + distancia_euclidiana(self.mapa.get_place(pedido.localizacao_origem), self.mapa.get_place(pedido.localizacao_destino))
+        dist = (distancia_euclidiana(self.mapa.get_place(veiculo.localizacao).coord[0],
+                                    self.mapa.get_place(veiculo.localizacao).coord[1],
+                                    self.mapa.get_place(pedido.localizacao_origem).coord[0],
+                                    self.mapa.get_place(pedido.localizacao_origem).coord[1])
+             + distancia_euclidiana(self.mapa.get_place(pedido.localizacao_origem).coord[0], 
+                                    self.mapa.get_place(pedido.localizacao_origem).coord[1], 
+                                    self.mapa.get_place(pedido.localizacao_destino).coord[0],
+                                    self.mapa.get_place(pedido.localizacao_destino).coord[1]))
 
         ambiental = 1
         if veiculo.tipo == TipoVeiculo.ELETRICO:

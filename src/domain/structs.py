@@ -86,8 +86,12 @@ class Veiculo:
         self.posicao = new_position
     
     def go_to_location(self, mapa, new_location: Place):
+        print(self.localizacao + " -> " + new_location.name)
+        if self.localizacao == new_location.name:
+            return
         (_, tipo_zona, cruzamentos) = mapa.get_aresta(self.localizacao, new_location.name)
-        velocidade = velocidade_media * mapa.get_fator_transito(tipo_zona)
+        print(cruzamentos)
+        velocidade = velocidade_media * mapa.get_fator_transito(tipo_zona, horaSimuladaAtual())
         
         for cruzamento in cruzamentos:
             self.go_to_position(cruzamento, velocidade)

@@ -42,7 +42,7 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
         visited.add(current_node)
 
         # Explorar vizinhos
-        for (neighbor, dist, zona) in map_graph.get_neighbours(current_node):
+        for (neighbor, dist, zona, _) in map_graph.get_neighbours(current_node):
 
             if neighbor not in visited:
                 transito = map_graph.get_fator_transito(zona, hora_atual)

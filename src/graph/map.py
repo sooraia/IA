@@ -34,31 +34,58 @@ class Map:
     def get_nodes(self):
         return self.places
 
-    def get_street_distance(self, node1: Place, node2: Place):
-        return distancia_manhattan(node1, node2)
+    def get_distancia_rota(self, node1: Place, node2: Place):
+        neighbours = self.get_neighbours(node1)
+        last_node = node1.coord
+        distancia = 0
+        for (neighbour, _, _, cruzamentos) in neighbours:
+            if neighbour == node2:
+                print(cruzamentos)
+                if(len(cruzamentos) > 0):
+                    last_node = cruzamentos[0]
+                    distancia += distancia_euclidiana(node1.coord[0], node1.coord[1], cruzamentos[0][0], cruzamentos[0][1])
+                for i in range(len(cruzamentos)-1):
+                    distancia += distancia_euclidiana(cruzamentos[i][0], cruzamentos[i][1], cruzamentos[i + 1][0], cruzamentos[i + 1][1])
+                    last_node = cruzamentos[i + 1]
+                print(last_node)
+                print(node2.coord)
+                distancia += distancia_euclidiana(node2.coord[0], node2.coord[1], last_node[0], last_node[1])
+                return distancia
+        return None
 
     def calc_total_distance(self, caminho):
         total = 0
         for i in range(len(caminho)-1):
-            total += self.get_street_distance(caminho[i], caminho[i+1])
+            total += self.get_distancia_rota(caminho[i], caminho[i+1])
         return total
     
     def get_aresta(self, name1: str, name2: str) -> tuple: # (custo, tipo_zona, cruzamentos) -- definir plss
-        pass
+        place1 = self.get_place(name1)
+        place2 = self.get_place(name2)
+        if place1 is None or place2 is None:
+            return None
+        neighbours = self.get_neighbours(place1)
+        for (neighbour, cost, tipo_zona, cruzamentos) in neighbours:
+            if neighbour == place2:
+                return (cost, tipo_zona, cruzamentos)
+        return None
 
     def get_neighbours(self, place: Place):
         return self.graph.get(place, [])
 
     def add_edge(self, name1: str, name2: str, cost: float, tipo_zona: str, cruzamentos: list = []):
-
         p1 = self.get_place(name1)
         p2 = self.get_place(name2)
+        cruzamentos_reverse = []
         if p1 is None or p2 is None:
             print(f"Aviso: nó não encontrado -> {name1}-{name2}")
             return
-          
-        self.graph[p1].append((p2, cost, tipo_zona))
-        self.graph[p2].append((p1, cost, tipo_zona))   # grafo não-direcionado
+        
+        for i in range(1, len(cruzamentos)):
+            cruzamentos_reverse.append(cruzamentos[len(cruzamentos) - i])
+            
+        self.graph[p1].append((p2, cost, tipo_zona, cruzamentos))
+        self.graph[p2].append((p1, cost, tipo_zona, cruzamentos_reverse))   # grafo não-direcionado
 
     def add_place(self, place_type: PlaceType, coord):
         new_place = Place(place_type, coord)
@@ -96,7 +123,10 @@ class Map:
 
         for estacao in estacoes:
             if estacao.current_veiculos +1 <= estacao.max_veiculos:
-                distancia = distancia_euclidiana(local_origem, estacao)
+                distancia = distancia_euclidiana(local_origem.coord[0],
+                                                 local_origem.coord[0], 
+                                                 estacao.coord[0],
+                                                 estacao.coord[1])
                 if distancia < distancia_minima:
                     distancia_minima = distancia
                     posto_mais_prox = estacao

@@ -45,7 +45,7 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
             total_cost = map_graph.calc_total_distance(reconst_path)
             return SearchResult(reconst_path, total_cost, closed_list, time_taken)
 
-        for (m, dist, zona) in map_graph.get_neighbours(n):
+        for (m, dist, zona, _) in map_graph.get_neighbours(n):
             transito = map_graph.get_fator_transito(zona, hora_atual)
 
             weight = dist * transito

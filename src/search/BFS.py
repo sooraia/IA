@@ -32,7 +32,7 @@ def bfs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
         current_node = path[-1] # Último nodo do caminho
         
         # Explorar os vizinhos do nodo atual
-        for (neighbor,_,_) in map_graph.get_neighbours(current_node):
+        for (neighbor, _, _, _) in map_graph.get_neighbours(current_node):
             if neighbor not in visited:
                 # Criar novo caminho incluindo o vizinho
                 new_path = path + [neighbor]

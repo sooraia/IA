@@ -17,8 +17,6 @@ from search.UCS import ucs_search
 from search.AStar import a_star_search
 from search.heuristics import distance_heuristic
 
-
-
 def build_map():
     map_graph = Map()
     N_PONTOS_RECOLHA = 21
