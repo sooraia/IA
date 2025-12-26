@@ -16,12 +16,12 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
     # verificar se os nodos existem no grafo
     if start_node is None or end_node is None:
         time_taken = process_time() - start_time
-        return SearchResult(None, 0, set(), time_taken)
+        return SearchResult(None, 0, 0, time_taken)
 
     # se o inicio é igual ao fim
     if start_node == end_node:
         time_taken = process_time() - start_time
-        return SearchResult([start_node], 0, {start_node}, time_taken)
+        return SearchResult([start_node], 0, 1, time_taken)
 
     # Fila de prioridade: (custo, id, no_atual, caminho)
     pq = []
@@ -35,7 +35,7 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
         # Se chegámos ao destino
         if current_node == end_node:
             time_taken = process_time() - start_time
-            return SearchResult(path, cost, visited, time_taken)
+            return SearchResult(path, cost, len(visited), time_taken)
 
         if current_node in visited:
             continue
@@ -56,4 +56,4 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
 
     # Se nao encontrou caminho
     time_taken = process_time() - start_time
-    return SearchResult(None, 0, visited, time_taken)
+    return SearchResult(None, 0, len(visited), time_taken)

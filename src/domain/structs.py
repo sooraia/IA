@@ -43,6 +43,23 @@ class Veiculo:
     custo_por_km: float
     posicao: tuple[float, float]
     emissoes_por_km: float
+    
+    tempo_viagem: datetime.timedelta
+
+    def __init__(self, id: str, tipo: TipoVeiculo, autonomia_max: float, autonomia_atual: float, capacidade_passageiros: int, estado: EstadoVeiculo,
+                 tempo_recarga_abastecimento: int, localizacao: str, custo_por_km: float, emissoes_por_km: float, posicao: tuple[float, float]=(0.0, 0.0)):
+        self.id = id
+        self.tipo = tipo
+        self.autonomia_max = autonomia_max
+        self.autonomia_atual = autonomia_atual
+        self.capacidade_passageiros = capacidade_passageiros
+        self.tempo_recarga_abastecimento = tempo_recarga_abastecimento
+        self.localizacao = localizacao
+        self.estado = estado
+        self.custo_por_km = custo_por_km
+        self.emissoes_por_km = emissoes_por_km
+        self.posicao = posicao
+        self.tempo_viagem = datetime.timedelta(0)
 
     def pode_atender_pedido(self, numero_passageiros: int, distancia: float, preferencia_ambiental: bool) -> bool:
         return (self.estado == EstadoVeiculo.DISPONIVEL and
@@ -66,6 +83,9 @@ class Veiculo:
     def go_to_position(self, new_position: tuple[float, float], velocidade: float):
         travel_distance = distancia_euclidiana(self.posicao[0], self.posicao[1], new_position[0], new_position[1])
         distancia_percorrida = 0
+    
+        tempo_viagem_segundos = travel_distance / (velocidade / 3600)
+        self.tempo_viagem += datetime.timedelta(seconds=tempo_viagem_segundos)
 
         distancia_por_segundo_real = velocidade * (144 / 3600)
 

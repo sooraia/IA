@@ -11,18 +11,20 @@ def dfs_depth(map_graph: Map, start_name: str, target_name: str, max_depth: int,
         path = []
 
     if max_depth < 0 or current_depth >= max_depth:
-        return None
+        return SearchResult(None, 0, len(visited), 0)
     
     start_place = map_graph.get_place(start_name)
     if start_place is None:
-        return None
+        return SearchResult(None, 0, len(visited), 0)
     target_place = map_graph.get_place(target_name)
     
     path.append(start_place)
+    visited.add(start_place)
 
     if start_place == target_place:
-        result = SearchResult(path.copy(), distance_atual, visited.copy(), 0)
+        result = SearchResult(path.copy(), distance_atual, len(visited), 0)
         path.pop()
+        visited.discard(start_place)
         return result
     
     visited.add(start_place)
@@ -31,28 +33,33 @@ def dfs_depth(map_graph: Map, start_name: str, target_name: str, max_depth: int,
         if neighbor not in visited:
             distance = map_graph.get_distancia_rota(start_place, neighbor)
             result = dfs_depth(map_graph, neighbor.get_name(), target_name, max_depth, path, visited, current_depth + 1, distance_atual + distance)
-            if result is not None:
+            if result.path is not None:
                 path.pop()
+                visited.discard(start_place)
                 return result
 
     visited.discard(start_place)
     path.pop()
-    return None
+    return SearchResult(None, 0, len(visited), 0)
 
 # Procura iterativa em profundidade
 def iterative(map_graph: Map, start_name: str, target_name: str, *args, **kwargs) -> SearchResult:
     total_nodes = len(map_graph.places) #(máximo de profundidade - n-1 arestas)
     start = process_time()
     max_depth = 0
+    visited = 0
     while True:
         results = dfs_depth(map_graph, start_name, target_name, max_depth)
-        if results is not None:
+        if results.path is not None:
             results.time_taken = process_time() - start
+            results.visited += visited
             return results
+        else:
+            visited += results.visited
         
         if max_depth >= total_nodes:
             return SearchResult(
-                None, None, None,
+                None, None, visited,
                 process_time() - start
             )
          

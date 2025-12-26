@@ -175,7 +175,7 @@ class Visualizer:
                             if result.path:
                                 path = result.path
                                 print(f"{algo_name} Caminho encontrado: {[p.get_name() for p in path]}")
-                                print(f"Custo: {result.distance}, Visitados: {len(result.visited)}")
+                                print(f"Custo: {result.distance}, Visitados: {result.visited}")
                                 
                                 # Iniciar animação
                                 self.anim_path = result.path

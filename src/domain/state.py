@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 import threading
+from time import sleep
 from typing import List, Dict, Optional
 from src.domain.pedido_gerador import gerar_pedidos, gerar_pedidos_data
 from src.domain.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, EstadoPedido, velocidade_media
+from src.search import SearchResult
 from src.utils import distancia_manhattan, distancia_euclidiana
 from threading import Thread
 from graph.map import Map
@@ -15,12 +17,19 @@ class Estado:
     pedidos: List[Pedido]
     pedidos_lock: threading.Lock
     mapa: Map
-    # Métricas acumuladas para cálculo do custo
+
+    # Métricas para o custo total
     custo_operacional_acumulado: float = 0.0
     tempo_espera_total: float = 0.0
     emissoes_totais: float = 0.0
     distancia_vazio_total: float = 0.0
     pedidos_rejeitados: int = 0
+
+    # Métricas para comparação dos algoritmos de procura
+    nos_visitados: int = 0
+    nos_caminho: int = 0
+    tempo_procura: float = 0.0
+    tempo_viagem_total: float = 0.0
 
     max_pedidos = 15
     pedidos_completados = 0
@@ -130,13 +139,19 @@ class Estado:
             5.0 * ambiental
         )
 
-    def atualizar_custos(self, veiculo: Veiculo, passageiros: bool, distancia_percorrida: float):
+    def atualizar_custos(self, veiculo: Veiculo, passageiros: bool, resultados: SearchResult):
+        distancia_percorrida = resultados.distance
         self.custo_operacional_acumulado +=  veiculo.calcular_custo_viagem(distancia_percorrida)
         self.emissoes_totais += distancia_percorrida * veiculo.emissoes_por_km
         self.distancia_total += distancia_percorrida
         
         if not passageiros:
             self.distancia_vazio_total += distancia_percorrida
+
+        self.nos_visitados += resultados.visited
+        self.nos_caminho += len(resultados.path)
+        self.tempo_procura += resultados.time_taken
+
 
     # Função principal para atualizar o estado do sistema: atribuição de pedidos e gestão dos veículos
     # O argumento algoritmo_procura é uma o algoritmo escolhido para implementar a procura da melhor rota no grafo
@@ -173,8 +188,8 @@ class Estado:
                             autonomia_reserva = distancia_manhattan(self.mapa.get_place(pedido.localizacao_destino), posto)
                             if (r1.distance + r2.distance + autonomia_reserva) <= veiculo.autonomia_atual:
                                 veiculos_disponiveis.remove(veiculo)
-                                self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= r1.distance)
-                                self.atualizar_custos(veiculo, passageiros=True, distancia_percorrida= r2.distance)
+                                self.atualizar_custos(veiculo, passageiros=False, resultados= r1)
+                                self.atualizar_custos(veiculo, passageiros=True, resultados= r2)
                                 veiculo.estado = EstadoVeiculo.OCUPADO
                                 pedido.estado = EstadoPedido.ATRIBUIDO
                                 Thread(target=veiculo.atender_pedido, args=(self.mapa, r1.path, r2.path, pedido,)).start()
@@ -188,7 +203,7 @@ class Estado:
                     estacao = self.posto_mais_proximo(veiculo.tipo, veiculo.localizacao)
                     results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao, veiculo, heuristica)
                     if results is not None:
-                        self.atualizar_custos(veiculo, passageiros=False, distancia_percorrida= results.distancia)
+                        self.atualizar_custos(veiculo, passageiros=False, resultados= results.distancia)
                         self.estado = EstadoVeiculo.ABASTECER
                         Thread(target=veiculo.abastecer(), args=(self.mapa, results.path,)).start()
     
@@ -196,13 +211,22 @@ class Estado:
         for p in self.pedidos:
             self.tempo_espera_total += p.tempo_espera.total_seconds() / 60.0  # min
         print("custo operacional:" + str(self.custo_operacional_acumulado))
-        print("tempo espera:" + str(self.tempo_espera_total))
+        print("tempo espera:" + str(self.tempo_espera_total) + " minutos")
         print("emissoes totais:" + str(self.emissoes_totais))
         print("distancia vazio total:" + str(self.distancia_vazio_total))
         print("pedidos rejeitados:" + str(self.pedidos_rejeitados))
         print("distancia total:" + str(self.distancia_total))
         return self.custo_operacional_acumulado + self.tempo_espera_total + self.emissoes_totais + self.distancia_vazio_total + self.pedidos_rejeitados
-            
+    
+    def get_custo_procura(self) -> float:
+        for v in self.veiculos:
+            self.tempo_viagem_total += v.tempo_viagem.total_seconds() / 60.0 
+        print("tempo viagem total:" + str(self.tempo_viagem_total) + " minutos simulados")
+        print("nós visitados:" + str(self.nos_visitados))
+        print("nós no caminho:" + str(self.nos_caminho))
+        print("tempo procura:" + str(self.tempo_procura*1000) + " ms reais")
+        return self.nos_visitados + self.nos_caminho + self.tempo_procura
+
     def adicionar_pedido(self, pedido: Pedido):
         with self.pedidos_lock:
             self.pedidos.append(pedido)
@@ -227,4 +251,3 @@ class Estado:
         print("a")
         while any((pedido.estado != EstadoPedido.CONCLUIDO and pedido.estado != EstadoPedido.REJEITADO) for pedido in self.pedidos):
             pass
-        self.get_custo_total()

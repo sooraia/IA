@@ -23,7 +23,7 @@ def greedy_search(map_graph: Map, start_name: str, target_name: str, vehicle, he
         
         if n == None:
             time_taken = process_time() - start_time
-            return SearchResult(None, 0, visited_list, time_taken)
+            return SearchResult(None, 0, len(visited_list), time_taken)
         
         # se chegámos ao destino
         if n == target:
@@ -40,7 +40,7 @@ def greedy_search(map_graph: Map, start_name: str, target_name: str, vehicle, he
             
             total_cost = map_graph.calc_total_distance(reconst_path)
             time_taken = process_time() - start_time
-            return SearchResult(reconst_path, total_cost, visited_list, time_taken)
+            return SearchResult(reconst_path, total_cost, len(visited_list), time_taken)
         
         for (m,_,_) in map_graph.get_neighbours(n):
             if m not in open_list and m not in visited_list:
@@ -51,4 +51,4 @@ def greedy_search(map_graph: Map, start_name: str, target_name: str, vehicle, he
         visited_list.add(n)
 
     time_taken = process_time() - start_time
-    return SearchResult(None, 0, visited_list, time_taken)
+    return SearchResult(None, 0, len(visited_list), time_taken)

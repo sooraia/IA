@@ -10,7 +10,7 @@ def dfs_search(map_graph : Map, start_node_name, target_node_name, *args, **kwar
 
     if start_node is None or target_node is None:
         time_taken = process_time() - start_time
-        return SearchResult(None, 0, set(), time_taken)
+        return SearchResult(None, 0, 0, time_taken)
 
     stack = [(start_node,[start_node])]
     visitados = {start_node}
@@ -21,7 +21,7 @@ def dfs_search(map_graph : Map, start_node_name, target_node_name, *args, **kwar
         if current_node == target_node:
             total_cost = map_graph.calc_total_distance(path)
             time_taken = process_time() - start_time
-            return SearchResult(path, total_cost, visitados, time_taken)
+            return SearchResult(path, total_cost, len(visitados), time_taken)
 
         neighbours = map_graph.get_neighbours(current_node)
 
@@ -32,5 +32,5 @@ def dfs_search(map_graph : Map, start_node_name, target_node_name, *args, **kwar
                 stack.append((neighbour, new_path))
     
     time_taken = process_time() - start_time
-    return SearchResult(None, 0, visitados, time_taken)
+    return SearchResult(None, 0, len(visitados), time_taken)
 

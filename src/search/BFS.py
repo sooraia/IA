@@ -11,12 +11,12 @@ def bfs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
     # verificar se os nodos existem no grafo
     if start is None or end is None:
         time_taken = process_time() - start_time
-        return SearchResult(None, 0, set(), time_taken) # set() cria um conjunto vazio q n pode ter duplicados
+        return SearchResult(None, 0, 0, time_taken) # nenhum nó visitado
     
     # se o inicio é igual ao fim
     if start == end:
         time_taken = process_time() - start_time
-        return SearchResult([start], 0, {start}, time_taken) # {start} cria um conjunto com o node start
+        return SearchResult([start], 0, 1, time_taken) # apenas o start foi visitado
     
     # criar a fila para guardar os nós que vamos visitar
     queue = deque()
@@ -41,12 +41,12 @@ def bfs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
                 if neighbor == end:
                     total_cost = map_graph.calc_total_distance(new_path)
                     time_taken = process_time() - start_time
-                    return SearchResult(new_path, total_cost, visited, time_taken)
+                    return SearchResult(new_path, total_cost, len(visited), time_taken)
                 
                 # Adicionar o novo caminho à fila e marcar como visitado
                 queue.append(new_path)
                 visited.add(neighbor)
     # Se nao encontrou caminho
     time_taken = process_time() - start_time
-    return SearchResult(None, 0, visited, time_taken)
+    return SearchResult(None, 0, len(visited), time_taken)
                 

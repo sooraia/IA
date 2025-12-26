@@ -29,7 +29,7 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
         if n == None:
             print("Path does not exist!")
             time_taken = process_time() - start_time
-            return SearchResult(None, 0, closed_list, time_taken)
+            return SearchResult(None, 0, len(closed_list), time_taken)
         
         if n == target:
             reconst_path = []
@@ -43,7 +43,7 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
             time_taken = process_time() - start_time
 
             total_cost = map_graph.calc_total_distance(reconst_path)
-            return SearchResult(reconst_path, total_cost, closed_list, time_taken)
+            return SearchResult(reconst_path, total_cost, len(closed_list), time_taken)
 
         for (m, zona, _) in map_graph.get_neighbours(n):
             cost = map_graph.get_cost(n, m, zona, hora_atual)
@@ -67,4 +67,4 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
 
     print('Caminho não existe!')
     time_taken = process_time() - start_time
-    return SearchResult(None, 0, closed_list, time_taken)
+    return SearchResult(None, 0, len(closed_list), time_taken)
