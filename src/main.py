@@ -1,5 +1,6 @@
 import sys
 import os
+from time import sleep
 
 # Add project root to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -164,6 +165,14 @@ if __name__ == "__main__":
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
     estado.run(iterative, distance_heuristic)
+
+    sleep(2)  #esperar pelas threads dos veiculos
+    print("\n----- RESULTADOS FINAIS -----")  
+    print("Desemenho do algoritmo de procura:")
+    estado.get_custo_procura()
+
+    print("\nCusto total da simulação:") 
+    estado.get_custo_total()
 
     # ucs_search(map_graph_instance, "R1", "R21")
     # print("---- UCS Search ----")
