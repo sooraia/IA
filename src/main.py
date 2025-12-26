@@ -48,7 +48,6 @@ def build_map():
     for i in range (N_POSTOS_CARREGAMENTO):
         map_graph.add_place(PlaceType.ESTACAO_DE_CARGA, postos_de_carregamento_coords[i])
 
-   
     """ Add edges to map graph """
     map_graph.add_edge("R1", "G1", "Normal", [])
     map_graph.add_edge("R1", "R3", "Residencial", [(4.7, 7.85)])
@@ -170,34 +169,9 @@ if __name__ == "__main__":
     sim_thread.daemon = True # Close thread when main program exits
     sim_thread.start()
 
-<<<<<<< HEAD
-    sleep(2)  #esperar pelas threads dos veiculos
-    print("\n----- RESULTADOS FINAIS -----")  
-    print("Desemenho do algoritmo de procura:")
-    estado.get_custo_procura()
-
-    print("\nCusto total da simulação:") 
-    estado.get_custo_total()
-
-    # ucs_search(map_graph_instance, "R1", "R21")
-    # print("---- UCS Search ----")
-    # result_ucs = ucs_search(map_graph_instance, "R1", "R21")
-    # if result_ucs.path is not None:
-    #     print("Caminho encontrado pela UCS:")
-    #     print(" -> ".join([place.name for place in result_ucs.path]))
-
-
-
-    
-    
-    # try:
-    #     from gui.visualizer import Visualizer
-    #     viz = Visualizer(map_graph_instance)
-=======
     try:
         from gui.visualizer import Visualizer
         viz = Visualizer(map_graph_instance, estado)
->>>>>>> af2b866 (GUI + UCS fix (espero eu))
         
         algorithms = {
             'UCS': ucs_search,
