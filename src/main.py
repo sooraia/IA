@@ -164,8 +164,13 @@ if __name__ == "__main__":
     map_graph_instance = build_map()
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
-    estado.run(iterative, distance_heuristic)
+    # Run simulation in a separate thread so GUI can run in main thread
+    import threading
+    sim_thread = threading.Thread(target=estado.run, args=(iterative, distance_heuristic))
+    sim_thread.daemon = True # Close thread when main program exits
+    sim_thread.start()
 
+<<<<<<< HEAD
     sleep(2)  #esperar pelas threads dos veiculos
     print("\n----- RESULTADOS FINAIS -----")  
     print("Desemenho do algoritmo de procura:")
@@ -188,17 +193,26 @@ if __name__ == "__main__":
     # try:
     #     from gui.visualizer import Visualizer
     #     viz = Visualizer(map_graph_instance)
+=======
+    try:
+        from gui.visualizer import Visualizer
+        viz = Visualizer(map_graph_instance, estado)
+>>>>>>> af2b866 (GUI + UCS fix (espero eu))
         
-    #     algorithms = {
-    #         'UCS': ucs_search
-    #     }
+        algorithms = {
+            'UCS': ucs_search,
+            'BFS': bfs_search,
+            'DFS': dfs_search,
+            'A*': a_star_search,
+            'Greedy': greedy_search,
+            'Iterative': iterative
+        }
         
-    #     # Pode alterar o início/fim padrão aqui ou na UI
-    # #     viz.run(algorithms, start_node="R1", end_node="R21")
+        # Pode alterar o início/fim padrão aqui ou na UI
+        viz.run(algorithms, start_node="R1", end_node="R21")
         
-    # except ImportError as e:
-    #     print(f"Não foi possível importar o Visualizer: {e}")
-    #     print("Certifique-se de que está a executar a partir da raiz do projeto ou que 'src' está no python path.")
-    # except Exception as e:
-    #     print(f"Ocorreu um erro durante a visualização: {e}")
-
+    except ImportError as e:
+        print(f"Não foi possível importar o Visualizer: {e}")
+        print("Certifique-se de que está a executar a partir da raiz do projeto ou que 'src' está no python path.")
+    except Exception as e:
+        print(f"Ocorreu um erro durante a visualização: {e}")
