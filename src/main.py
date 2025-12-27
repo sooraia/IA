@@ -17,6 +17,8 @@ from search.DFS import dfs_search
 from search.UCS import ucs_search
 from search.AStar import a_star_search
 from search.heuristics import distance_heuristic
+from search.heuristics import time_heuristic
+from search.heuristics import combined_heuristic
 from search.iterative import iterative
 from search.Greedy import greedy_search
 
@@ -164,7 +166,7 @@ if __name__ == "__main__":
     map_graph_instance = build_map()
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
-    estado.run(iterative, distance_heuristic)
+    estado.run(ucs_search,combined_heuristic)
 
     sleep(2)  #esperar pelas threads dos veiculos
     print("\n----- RESULTADOS FINAIS -----")  

@@ -60,8 +60,8 @@ def gerar_pedidos_data():
     pedidos = load_pedidos()
     pedidos.sort(key=lambda p: p.horario_pretendido)
     for p in pedidos:
-        if p.horario_pretendido > horaSimuladaAtual(): # esperar até o horário pretendido
-            intervalo = (p.horario_pretendido - horaSimuladaAtual()).total_seconds()
+        if p.horario_pretendido - datetime.timedelta(minutes=30) > horaSimuladaAtual(): # esperar até o horário pretendido
+            intervalo = (p.horario_pretendido - datetime.timedelta(minutes=30) - horaSimuladaAtual()).total_seconds()
             time.sleep(intervalo/144)
         yield p
 

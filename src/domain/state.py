@@ -225,6 +225,11 @@ class Estado:
         print("nós visitados:" + str(self.nos_visitados))
         print("nós no caminho:" + str(self.nos_caminho))
         print("tempo procura:" + str(self.tempo_procura*1000) + " ms reais")
+
+        res = str(self.tempo_procura*1000) + ", " + str(self.tempo_viagem_total) + ", " + str(self.distancia_total) + ", " + str(self.nos_caminho) + ", " + str(self.nos_visitados)
+        with open('resultados_procura.txt', 'a') as f:
+            f.write(res + '\n')
+
         return self.nos_visitados + self.nos_caminho + self.tempo_procura
 
     def adicionar_pedido(self, pedido: Pedido):
