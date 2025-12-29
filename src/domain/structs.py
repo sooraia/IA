@@ -87,10 +87,11 @@ class Veiculo:
         tempo_viagem_segundos = travel_distance / (velocidade / 3600)
         self.tempo_viagem += datetime.timedelta(seconds=tempo_viagem_segundos)
 
-        distancia_por_segundo_real = velocidade * (144 / 3600)
+        tick_rate = 0.05
+        distancia_por_tick = velocidade * (144 / 3600) * tick_rate
 
         while distancia_percorrida < travel_distance:
-            distancia_percorrida += distancia_por_segundo_real
+            distancia_percorrida += distancia_por_tick
             if distancia_percorrida > travel_distance:
                 distancia_percorrida = travel_distance
             
@@ -98,7 +99,7 @@ class Veiculo:
             self.posicao = (self.posicao[0] + (new_position[0] - self.posicao[0]) * progresso,
                             self.posicao[1] + (new_position[1] - self.posicao[1]) * progresso)
             
-            time.sleep(1)
+            time.sleep(tick_rate)
         self.autonomia_atual -= travel_distance
         self.posicao = new_position
     

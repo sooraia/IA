@@ -10,6 +10,7 @@ from threading import Thread
 from graph.map import Map
 from graph.place import Place, PlaceType
 import json
+import os
 
 @dataclass
 class Estado:
@@ -35,23 +36,31 @@ class Estado:
     pedidos_completados = 0
     pedidos_gerados = 0
     distancia_total = 0.0
+    running = False
     
     def __init__ (self, mapa: Map):
+        self.mapa = mapa
+        self.pedidos_lock = threading.Lock()
+        self.reset()
+    
+    def reset(self):
         self.veiculos = []
         self.pedidos = []
-        self.mapa = mapa
         self.custo_operacional_acumulado = 0.0
         self.tempo_espera_total = 0.0
         self.emissoes_totais = 0.0
         self.distancia_vazio_total = 0.0
         self.pedidos_rejeitados = 0
-        self.pedidos_lock = threading.Lock()
-        self.distancia_total= 0.0
-
+        self.distancia_total = 0.0
+        self.pedidos_completados = 0
+        self.pedidos_gerados = 0
+        self.running = False
         self.load_veiculos()
 
     def load_veiculos(self):
-        with open('data/veiculos.json', 'r') as f:
+        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        file_path = os.path.join(base_path, 'data', 'veiculos.json')
+        with open(file_path, 'r') as f:
             veiculos_data = json.load(f)
             for v_data in veiculos_data["veiculos"]:
                 veiculo = Veiculo(
@@ -244,6 +253,7 @@ class Estado:
             self.adicionar_pedido(novo_pedido)
 
     def run(self, algoritmo_procura, heuristica):
+        self.running = True
         self.pedidos_done = False
         thread_gera_pedidos = threading.Thread(
             target = self.thread_produtora_pedidos, 
@@ -251,8 +261,13 @@ class Estado:
         )
         thread_gera_pedidos.start()
 
-        while self.pedidos_completados != self.max_pedidos:
+        while self.pedidos_completados != self.max_pedidos and self.running:
             self.atualizar_estado(algoritmo_procura, heuristica)
-        print("a")
-        while any((pedido.estado != EstadoPedido.CONCLUIDO and pedido.estado != EstadoPedido.REJEITADO) for pedido in self.pedidos):
-            pass
+            if not self.running: break
+            
+        print("Simulation loop ended")
+        if self.running:
+            while any((pedido.estado != EstadoPedido.CONCLUIDO and pedido.estado != EstadoPedido.REJEITADO) for pedido in self.pedidos):
+                if not self.running: break
+                pass
+            self.get_custo_total()

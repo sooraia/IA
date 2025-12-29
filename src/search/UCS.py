@@ -50,7 +50,7 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
                 # weight = dist * transito
                 # new_cost = cost + weight
                 # new_path = path + [neighbor]
-                new_cost = map_graph.get_cost(current_node, neighbor, zona, hora_atual)
+                new_cost = cost + map_graph.get_cost(current_node, neighbor, zona, hora_atual)
                 new_path = path + [neighbor]
                 heapq.heappush(pq, (new_cost, id(neighbor), neighbor, new_path))
 

@@ -50,7 +50,6 @@ def build_map():
     for i in range (N_POSTOS_CARREGAMENTO):
         map_graph.add_place(PlaceType.ESTACAO_DE_CARGA, postos_de_carregamento_coords[i])
 
-   
     """ Add edges to map graph """
     map_graph.add_edge("R1", "G1", "Normal", [])
     map_graph.add_edge("R1", "R3", "Residencial", [(4.7, 7.85)])
@@ -167,7 +166,6 @@ if __name__ == "__main__":
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
     estado.run(ucs_search,combined_heuristic)
-
     sleep(2)  #esperar pelas threads dos veiculos
     print("\n----- RESULTADOS FINAIS -----")  
     print("Desemenho do algoritmo de procura:")
@@ -175,32 +173,30 @@ if __name__ == "__main__":
 
     print("\nCusto total da simulação:") 
     estado.get_custo_total()
+    # # Run simulation in a separate thread so GUI can run in main thread
+    # import threading
+    # sim_thread = threading.Thread(target=estado.run, args=(iterative, distance_heuristic))
+    # sim_thread.daemon = True # Close thread when main program exits
+    # sim_thread.start()
 
-    # ucs_search(map_graph_instance, "R1", "R21")
-    # print("---- UCS Search ----")
-    # result_ucs = ucs_search(map_graph_instance, "R1", "R21")
-    # if result_ucs.path is not None:
-    #     print("Caminho encontrado pela UCS:")
-    #     print(" -> ".join([place.name for place in result_ucs.path]))
-
-
-
-    
-    
     # try:
     #     from gui.visualizer import Visualizer
-    #     viz = Visualizer(map_graph_instance)
+    #     viz = Visualizer(map_graph_instance, estado)
         
     #     algorithms = {
-    #         'UCS': ucs_search
+    #         'UCS': ucs_search,
+    #         'BFS': bfs_search,
+    #         'DFS': dfs_search,
+    #         'A*': a_star_search,
+    #         'Greedy': greedy_search,
+    #         'Iterative': iterative
     #     }
         
     #     # Pode alterar o início/fim padrão aqui ou na UI
-    # #     viz.run(algorithms, start_node="R1", end_node="R21")
+    #     viz.run(algorithms, start_node="R1", end_node="R21")
         
     # except ImportError as e:
     #     print(f"Não foi possível importar o Visualizer: {e}")
     #     print("Certifique-se de que está a executar a partir da raiz do projeto ou que 'src' está no python path.")
     # except Exception as e:
     #     print(f"Ocorreu um erro durante a visualização: {e}")
-
