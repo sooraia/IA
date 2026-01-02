@@ -75,13 +75,12 @@ class Map:
     def add_edge(self, name1: str, name2: str, tipo_zona: str, cruzamentos: list = []):
         p1 = self.get_place(name1)
         p2 = self.get_place(name2)
-        cruzamentos_reverse = []
         if p1 is None or p2 is None:
             print(f"Aviso: nó não encontrado -> {name1}-{name2}")
             return
         
-        for i in range(1, len(cruzamentos)):
-            cruzamentos_reverse.append(cruzamentos[len(cruzamentos) - i])
+        # Inverter a lista de cruzamentos para a direção oposta
+        cruzamentos_reverse = list(reversed(cruzamentos))
             
         self.graph[p1].append((p2, tipo_zona, cruzamentos))
         self.graph[p2].append((p1, tipo_zona, cruzamentos_reverse))   # grafo não-direcionado

@@ -23,19 +23,34 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
         time_taken = process_time() - start_time
         return SearchResult([start_node], 0, 1, time_taken)
 
-    # Fila de prioridade: (custo, id, no_atual, caminho)
+    # Fila de prioridade: (custo, id, no_atual)
     pq = []
-    heapq.heappush(pq, (0, id(start_node), start_node, [start_node]))
+    heapq.heappush(pq, (0, id(start_node), start_node))
+    
+    # Dicionários para reconstrução do caminho e custo
+    parents = {start_node: start_node}
+    g = {start_node: 0} # custom g (custo acumulado)
 
     visited = set()
 
     while pq:
-        cost, _, current_node, path = heapq.heappop(pq)
+        cost, _, current_node = heapq.heappop(pq)
 
         # Se chegámos ao destino
         if current_node == end_node:
+            reconst_path = []
+            while parents[current_node] != current_node:
+                reconst_path.append(current_node)
+                current_node = parents[current_node]
+            reconst_path.append(start_node)
+            reconst_path.reverse()
+
             time_taken = process_time() - start_time
-            return SearchResult(path, cost, len(visited), time_taken)
+            
+            # Calcular a distancia fisica real para o resultado (consistente com outros algoritmos)
+            total_dist = map_graph.calc_total_distance(reconst_path)
+            
+            return SearchResult(reconst_path, total_dist, len(visited), time_taken)
 
         if current_node in visited:
             continue
@@ -43,16 +58,15 @@ def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) 
 
         # Explorar vizinhos
         for (neighbor, zona, _) in map_graph.get_neighbours(current_node):
+            edge_cost = map_graph.get_cost(current_node, neighbor, zona, hora_atual)
+            new_cost = cost + edge_cost
 
             if neighbor not in visited:
-                # transito = map_graph.get_fator_transito(zona, hora_atual)
-                
-                # weight = dist * transito
-                # new_cost = cost + weight
-                # new_path = path + [neighbor]
-                new_cost = cost + map_graph.get_cost(current_node, neighbor, zona, hora_atual)
-                new_path = path + [neighbor]
-                heapq.heappush(pq, (new_cost, id(neighbor), neighbor, new_path))
+                # Se encontrarmos um caminho melhor para o vizinho
+                if new_cost < g.get(neighbor, float('inf')):
+                    g[neighbor] = new_cost
+                    parents[neighbor] = current_node
+                    heapq.heappush(pq, (new_cost, id(neighbor), neighbor))
 
     # Se nao encontrou caminho
     time_taken = process_time() - start_time
