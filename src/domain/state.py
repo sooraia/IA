@@ -32,7 +32,7 @@ class Estado:
     tempo_procura: float = 0.0
     tempo_viagem_total: float = 0.0
 
-    max_pedidos = 100
+    max_pedidos = 15
     pedidos_completados = 0
     pedidos_gerados = 0
     distancia_total = 0.0
@@ -273,6 +273,7 @@ class Estado:
         while self.pedidos_completados != self.max_pedidos and self.running:
             self.atualizar_estado(algoritmo_procura, heuristica)
             if not self.running: break
+        print(f"pedidos completados: {self.pedidos_completados}/{self.max_pedidos}")
             
         print("Simulation loop ended")
         if self.running:
