@@ -86,15 +86,15 @@ def main():
     print("=" * 60)
     print(f"Algoritmo: {nome_algoritmo}")
     print("=" * 60 + "\n")
-    
-    # Executar simulação numa thread separada para que a GUI possa correr na thread principal
-    sim_thread = threading.Thread(target=estado.run, args=(algoritmo, distance_heuristic))
-    sim_thread.daemon = True  # Fechar thread quando o programa principal termina
-    sim_thread.start()
 
     try:
         from gui.visualizer import Visualizer
         viz = Visualizer(map_graph_instance, estado)
+
+        # Executar simulação numa thread separada para que a GUI possa correr na thread principal
+        sim_thread = threading.Thread(target=estado.run, args=(algoritmo, distance_heuristic))
+        sim_thread.daemon = True  # Fechar thread quando o programa principal termina
+        sim_thread.start()
         
         # Iniciar o visualizador com o nome do algoritmo
         viz.run(nome_algoritmo)
