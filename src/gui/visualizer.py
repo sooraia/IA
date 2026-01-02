@@ -8,6 +8,7 @@ import sys
 from src.graph.map import Map
 from src.graph.place import PlaceType
 from src.domain.structs import EstadoVeiculo, TipoVeiculo
+from src.utils import horaSimuladaAtual
 
 # Constantes de dimensão do ecrã (quadrado)
 LARGURA_ECRA = 800
@@ -152,6 +153,56 @@ class Visualizer:
                     start_pos = self.transform_coord(pontos[i])
                     end_pos = self.transform_coord(pontos[i + 1])
                     pygame.draw.line(self.screen, cor_estrada, start_pos, end_pos, LARGURA_ESTRADA)
+
+    def draw_traffic(self):
+        """
+        Desenha indicadores de trânsito semi-transparentes sobre as estradas.
+        Verde = trânsito leve, Amarelo = moderado, Vermelho = intenso.
+        """
+        drawn_edges = set()
+        hora_atual = horaSimuladaAtual()
+        
+        # Criar superfície transparente para o trânsito
+        traffic_surface = pygame.Surface((LARGURA_ECRA, ALTURA_ECRA), pygame.SRCALPHA)
+        
+        for node, edges in self.map_graph.graph.items():
+            for (neighbor, tipo_zona, cruzamentos) in edges:
+                # Evitar desenhar a mesma aresta duas vezes
+                pair = tuple(sorted((node.get_name(), neighbor.get_name())))
+                if pair in drawn_edges:
+                    continue
+                
+                drawn_edges.add(pair)
+                
+                # Calcular fator de trânsito para esta aresta
+                fator_transito = self.map_graph.get_fator_transito(tipo_zona, hora_atual)
+                
+                # Determinar cor com base no fator de trânsito (dinâmico com a hora)
+                # fator_transito varia de 1.0 (sem trânsito) a ~1.8 (muito trânsito)
+                if fator_transito < 1.2:
+                    # Trânsito leve - verde subtil
+                    cor_transito = (0, 180, 0, 40)
+                elif fator_transito < 1.5:
+                    # Trânsito moderado - amarelo/laranja subtil
+                    cor_transito = (255, 150, 0, 55)
+                else:
+                    # Trânsito intenso - vermelho subtil
+                    cor_transito = (255, 50, 50, 70)
+                
+                # Construir lista de todos os pontos da aresta
+                pontos = [node.coord]
+                if cruzamentos:
+                    pontos.extend(cruzamentos)
+                pontos.append(neighbor.coord)
+                
+                # Desenhar indicador de trânsito sobre a estrada (linha mais fina para não tapar)
+                for i in range(len(pontos) - 1):
+                    start_pos = self.transform_coord(pontos[i])
+                    end_pos = self.transform_coord(pontos[i + 1])
+                    pygame.draw.line(traffic_surface, cor_transito, start_pos, end_pos, 4)
+        
+        # Aplicar a superfície de trânsito ao ecrã
+        self.screen.blit(traffic_surface, (0, 0))
 
     def draw_nodes(self):
         """
@@ -319,6 +370,7 @@ class Visualizer:
             
             # Desenhar elementos do mapa
             self.draw_edges()
+            self.draw_traffic()
             self.draw_nodes()
             self.draw_vehicles()
             
@@ -342,6 +394,15 @@ class Visualizer:
                 reset_surf = self.font.render(reset_text, True, (100, 100, 100))
                 pygame.draw.rect(self.screen, (255, 255, 255, 200), (5, 55, reset_surf.get_width() + 10, 25))
                 self.screen.blit(reset_surf, (10, 60))
+                
+                # Hora simulada (canto superior direito)
+                hora_sim = horaSimuladaAtual()
+                hora_text = hora_sim.strftime("%H:%M")
+                hora_font = pygame.font.SysFont('Arial', 24, bold=True)
+                hora_surf = hora_font.render(hora_text, True, (0, 0, 0))
+                hora_x = LARGURA_ECRA - hora_surf.get_width() - 15
+                pygame.draw.rect(self.screen, (255, 255, 255, 220), (hora_x - 5, 5, hora_surf.get_width() + 10, 30))
+                self.screen.blit(hora_surf, (hora_x, 8))
 
             pygame.display.flip()
             self.clock.tick(30)
