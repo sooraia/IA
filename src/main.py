@@ -131,7 +131,7 @@ def build_map():
 
     map_graph.add_edge("R6", "E1", "Residencial", [])
     map_graph.add_edge("R6", "G3", "Residencial", [(4.75, 6.2)])
-    map_graph.add_edge("R6", "R15", "Residencial", [(5.50, 4.5)])
+    map_graph.add_edge("R6", "R15", "Residencial", [(6.05, 4.5)])
     map_graph.add_edge("R6", "R11", "Residencial", [(7.65, 6.2)])
     map_graph.add_edge("R6", "E2", "Residencial", [])
 

@@ -41,7 +41,7 @@ LARGURA_CAMINHO = 4
 COR_CAMINHO = (255, 0, 0)               # Vermelho - caminho encontrado
 
 # Configurações dos veículos
-COR_CARRO = (255, 255, 0)               # Amarelo - veículo disponível
+COR_CARRO = (100, 255, 100)           # Amarelo - veículo disponível
 COR_CARRO_OCUPADO = (255, 100, 100)     # Vermelho - veículo ocupado
 TAMANHO_CARRO = 12
 
