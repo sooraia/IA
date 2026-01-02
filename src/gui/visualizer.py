@@ -5,10 +5,12 @@ os veículos em movimento e os caminhos calculados pelos diferentes algoritmos.
 """
 import pygame
 import sys
+import math
 from src.graph.map import Map
 from src.graph.place import PlaceType
 from src.domain.structs import EstadoVeiculo, TipoVeiculo
-from src.utils import horaSimuladaAtual
+from src.utils import horaSimuladaAtual, set_hora_real_inicial
+import datetime
 
 # Constantes de dimensão do ecrã (quadrado)
 LARGURA_ECRA = 800
@@ -79,6 +81,9 @@ class Visualizer:
         self.anim_progress = 0.0        # Progresso da animação (0.0 a 1.0)
         self.anim_speed = 0.05          # Velocidade da animação por frame
         self.car_pos = None             # Posição atual do carro na animação
+        
+        # Guardar posições anteriores dos veículos para calcular direção
+        self.previous_positions = {}    # {veiculo_id: (x, y)}
 
         # Carregar recursos gráficos
         import os
@@ -276,9 +281,30 @@ class Visualizer:
                     car_image = self.car_img
                 
                 if car_image:
-                    # Centrar a imagem na posição
-                    dest_rect = car_image.get_rect(center=(int(screen_pos[0]), int(screen_pos[1])))
-                    self.screen.blit(car_image, dest_rect)
+                    # Calcular ângulo de rotação baseado na direção do movimento
+                    prev_pos = self.previous_positions.get(veiculo.id)
+                    if prev_pos:
+                        dx = screen_pos[0] - prev_pos[0]
+                        dy = screen_pos[1] - prev_pos[1]
+                        # Só atualizar ângulo se houver movimento significativo
+                        if abs(dx) > 0.5 or abs(dy) > 0.5:
+                            # atan2 dá ângulo em radianos, converter para graus
+                            # O PNG tem a frente virada para a esquerda (180°)
+                            angle = math.degrees(math.atan2(-dy, dx)) + 180
+                            self.previous_positions[veiculo.id + '_angle'] = angle
+                    
+                    # Usar o último ângulo conhecido ou 0 (virado para esquerda)
+                    angle = self.previous_positions.get(veiculo.id + '_angle', 0)
+                    
+                    # Guardar posição atual para próximo frame
+                    self.previous_positions[veiculo.id] = screen_pos
+                    
+                    # Rodar a imagem do carro
+                    rotated_car = pygame.transform.rotate(car_image, angle)
+                    
+                    # Centrar a imagem rodada na posição
+                    dest_rect = rotated_car.get_rect(center=(int(screen_pos[0]), int(screen_pos[1])))
+                    self.screen.blit(rotated_car, dest_rect)
                     
                     # Indicador de estado (pequeno círculo colorido)
                     pygame.draw.circle(self.screen, color, (int(screen_pos[0]) + 15, int(screen_pos[1]) - 10), 4)
@@ -352,6 +378,12 @@ class Visualizer:
                     if event.key == pygame.K_r and self.estado:
                          print("A reiniciar simulação...")
                          self.estado.reset()
+                         
+                         # Reiniciar a hora simulada
+                         set_hora_real_inicial(datetime.datetime.now())
+                         
+                         # Limpar posições anteriores dos veículos
+                         self.previous_positions = {}
                          
                          # Reimportar dependências necessárias para reinício
                          from src.search.iterative import iterative
