@@ -7,8 +7,6 @@ __pycache__/
 
 # Virtual environments
 .env/
-.venv/
-venv/
 env/
 
 # Pyre / MyPy / Pytest caches
