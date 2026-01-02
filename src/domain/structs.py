@@ -67,12 +67,6 @@ class Veiculo:
                 self.autonomia_atual >= distancia and
                 (preferencia_ambiental == True and self.tipo == TipoVeiculo.ELETRICO) or
                  preferencia_ambiental == False)
-    
-    def calcular_consumo_viagem(self, distancia: float) -> float:
-        if self.tipo == TipoVeiculo.ELETRICO:
-            return distancia * 0.2  # kWh
-        else:
-            return distancia * 0.07  # litros
         
     def calcular_custo_viagem(self, distancia: float) -> float:
         return distancia * self.custo_por_km
@@ -151,17 +145,22 @@ class Veiculo:
 
     def abastecer(self, mapa, path):
         print(f"Veículo {self.id} a abastecer/carregar")
+        print(f"Localizações a percorrer: {[loc.name for loc in path]}. autonomia atual: {self.autonomia_atual:.2f}/autonomia max: {self.autonomia_max:.2f}")
         path.pop(0)
         for localizacao in path:
             self.go_to_location(mapa, localizacao)
 
-        tempo_total_carregamento = self.tempo_recarga_abastecimento * (self.autonomia_max - self.autonomia_atual) / self.autonomia_max
-        
-        while self.autonomia_atual < self.autonomia_max:
-            self.autonomia_atual += self.autonomia_max / self.tempo_recarga_abastecimento
-            tempo_total_carregamento -= 1
-            time.sleep(1)
+        tempo_simulado_carregamento = (self.tempo_recarga_abastecimento * (self.autonomia_max - self.autonomia_atual) / self.autonomia_max) * 3600
+        tempo_real_carregamento = tempo_simulado_carregamento / 144
 
+        while tempo_real_carregamento > 0:
+            self.autonomia_atual += self.autonomia_max / tempo_real_carregamento
+            if self.autonomia_atual > self.autonomia_max:
+                self.autonomia_atual = self.autonomia_max
+                break
+            tempo_real_carregamento -= 1
+            time.sleep(1)
+        print(f"Veículo {self.id} terminou de abastecer/carregar, autonomia atual: {self.autonomia_atual:.2f}/autonomia max: {self.autonomia_max:.2f}")
         self.estado = EstadoVeiculo.DISPONIVEL
 
 @dataclass

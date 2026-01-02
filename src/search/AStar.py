@@ -11,6 +11,7 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
     start = map_graph.get_place(start_name)
     target = map_graph.get_place(target_name)
     g = {}
+    visited = 0
     g[start] = 0
     
     open_list = set([start])     #lista de nós visitados mas com vizinhos não visitados
@@ -29,8 +30,10 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
         if n == None:
             print("Path does not exist!")
             time_taken = process_time() - start_time
-            return SearchResult(None, 0, len(closed_list), time_taken)
-        
+            return SearchResult(None, 0, visited, time_taken)
+        else:
+            visited += 1
+
         if n == target:
             reconst_path = []
             while parents[n] != n:
@@ -43,7 +46,7 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
             time_taken = process_time() - start_time
 
             total_cost = map_graph.calc_total_distance(reconst_path)
-            return SearchResult(reconst_path, total_cost, len(closed_list), time_taken)
+            return SearchResult(reconst_path, total_cost, visited, time_taken)
 
         for (m, zona, _) in map_graph.get_neighbours(n):
             cost = map_graph.get_cost(n, m, zona, hora_atual)
@@ -52,6 +55,7 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
                 open_list.add(m)
                 parents[m] = n
                 g[m] = g[n] + cost
+                visited += 1
 
             else:
                 if g[m] > g[n] + cost:
@@ -67,4 +71,4 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
 
     print('Caminho não existe!')
     time_taken = process_time() - start_time
-    return SearchResult(None, 0, len(closed_list), time_taken)
+    return SearchResult(None, 0, visited, time_taken)

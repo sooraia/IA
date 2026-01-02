@@ -32,7 +32,7 @@ class Estado:
     tempo_procura: float = 0.0
     tempo_viagem_total: float = 0.0
 
-    max_pedidos = 15
+    max_pedidos = 100
     pedidos_completados = 0
     pedidos_gerados = 0
     distancia_total = 0.0
@@ -170,7 +170,7 @@ class Estado:
 
         for p in pedidos_pendentes:
             if p.verificar_tempo_rejeicao():
-                print("pedido rejeitado: " + p.id)
+                print("pedido rejeitado: " + str(p.id))
                 self.pedidos_rejeitados += 1
                 self.pedidos_completados+=1
                 
@@ -209,12 +209,17 @@ class Estado:
         for veiculo in self.veiculos:
             if veiculo.estado == EstadoVeiculo.DISPONIVEL:
                 if veiculo.autonomia_atual < (0.2* veiculo.autonomia_max):
+                    print(f"Veículo {veiculo.id} com autonomia baixa ({veiculo.autonomia_atual:.2f}/{veiculo.autonomia_max:.2f}), a procurar posto de recarga/abastecimento.")
+                    print(f"Etsado: {veiculo.estado}")
                     estacao = self.posto_mais_proximo(veiculo.tipo, veiculo.localizacao)
-                    results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao, veiculo, heuristica)
-                    if results is not None:
-                        self.atualizar_custos(veiculo, passageiros=False, resultados= results.distancia)
-                        self.estado = EstadoVeiculo.ABASTECER
-                        Thread(target=veiculo.abastecer(), args=(self.mapa, results.path,)).start()
+                    print(f"Veículo {veiculo.id} a caminho do posto de recarga/abastecimento em {estacao.name}")
+                    results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao.name, veiculo, heuristica)
+                    if results.path is None:
+                        print(f"Veículo {veiculo.id} não conseguiu encontrar rota para posto de recarga/abastecimento.")
+                    if results is not None and results.path is not None:
+                        self.atualizar_custos(veiculo, passageiros=False, resultados= results)
+                        veiculo.estado = EstadoVeiculo.ABASTECER
+                        Thread(target=veiculo.abastecer, args=(self.mapa, results.path,)).start()
     
     def get_custo_total(self) -> float:
         for p in self.pedidos:
@@ -247,7 +252,11 @@ class Estado:
             self.pedidos_gerados+=1
             
     def thread_produtora_pedidos(self):
-        generator = gerar_pedidos_data()
+        #generator = gerar_pedidos_data()
+        generator = gerar_pedidos(
+            localizacoes=[place.name for place in self.mapa.places],
+            quantidade=self.max_pedidos,
+        )
         
         for novo_pedido in generator:
             self.adicionar_pedido(novo_pedido)

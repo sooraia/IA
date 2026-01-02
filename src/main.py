@@ -165,7 +165,7 @@ if __name__ == "__main__":
     map_graph_instance = build_map()
     set_hora_real_inicial(datetime.datetime.now())
     estado = Estado(map_graph_instance)
-    estado.run(ucs_search,combined_heuristic)
+    estado.run(bfs_search,combined_heuristic)
     sleep(2)  #esperar pelas threads dos veiculos
     print("\n----- RESULTADOS FINAIS -----")  
     print("Desemenho do algoritmo de procura:")
