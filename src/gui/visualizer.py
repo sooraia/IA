@@ -7,7 +7,7 @@ import pygame
 import sys
 from src.graph.map import Map
 from src.graph.place import PlaceType
-from src.domain.structs import EstadoVeiculo
+from src.domain.structs import EstadoVeiculo, TipoVeiculo
 
 # Constantes de dimensão do ecrã (quadrado)
 LARGURA_ECRA = 800
@@ -82,10 +82,12 @@ class Visualizer:
         # Carregar recursos gráficos
         import os
         self.car_img = None
+        self.car_ev_img = None
         self.bg_img = None
         
         gui_path = os.path.dirname(os.path.abspath(__file__))
         car_path = os.path.join(gui_path, "car.png")
+        car_ev_path = os.path.join(gui_path, "carEV.png")
         map_path = os.path.join(gui_path, "map.jpeg")
 
         try:
@@ -93,6 +95,11 @@ class Visualizer:
                 raw_car = pygame.image.load(car_path)
                 # Escalar o carro para um tamanho adequado
                 self.car_img = pygame.transform.scale(raw_car, (40, 20))
+            
+            if os.path.exists(car_ev_path):
+                raw_car_ev = pygame.image.load(car_ev_path)
+                # Escalar o carro elétrico para um tamanho adequado
+                self.car_ev_img = pygame.transform.scale(raw_car_ev, (40, 20))
             
             if os.path.exists(map_path):
                 self.bg_img = pygame.image.load(map_path)
@@ -210,11 +217,17 @@ class Visualizer:
                 elif veiculo.estado == EstadoVeiculo.ABASTECER:
                     color = (0, 0, 255)  # Azul - a abastecer
                 
-                # Desenhar o veículo
-                if self.car_img:
+                # Desenhar o veículo - usar imagem apropriada baseada no tipo
+                car_image = None
+                if veiculo.tipo == TipoVeiculo.ELETRICO and self.car_ev_img:
+                    car_image = self.car_ev_img
+                elif self.car_img:
+                    car_image = self.car_img
+                
+                if car_image:
                     # Centrar a imagem na posição
-                    dest_rect = self.car_img.get_rect(center=(int(screen_pos[0]), int(screen_pos[1])))
-                    self.screen.blit(self.car_img, dest_rect)
+                    dest_rect = car_image.get_rect(center=(int(screen_pos[0]), int(screen_pos[1])))
+                    self.screen.blit(car_image, dest_rect)
                     
                     # Indicador de estado (pequeno círculo colorido)
                     pygame.draw.circle(self.screen, color, (int(screen_pos[0]) + 15, int(screen_pos[1]) - 10), 4)
