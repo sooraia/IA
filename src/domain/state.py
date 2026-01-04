@@ -273,7 +273,6 @@ class Estado:
         while self.pedidos_completados != self.max_pedidos and self.running:
             self.atualizar_estado(algoritmo_procura, heuristica)
             if not self.running: break
-        print(f"pedidos completados: {self.pedidos_completados}/{self.max_pedidos}")
             
         print("Simulation loop ended")
         if self.running:
@@ -281,3 +280,5 @@ class Estado:
                 if not self.running: break
                 pass
             self.get_custo_total()
+
+        

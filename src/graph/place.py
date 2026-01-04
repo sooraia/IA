@@ -1,4 +1,3 @@
-# place.py
 from enum import Enum
 
 class PlaceType(Enum):
@@ -28,7 +27,7 @@ class Place:
     def __repr__(self):
         return f"node {self.name}"
 
-    def set_id(self, new_id):          # agora atribui diretamente
+    def set_id(self, new_id):
         self.id = new_id
 
     def generate_name(self, number):
