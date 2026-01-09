@@ -13,4 +13,4 @@ def time_heuristic(start, end, vehicle):
 def combined_heuristic(start, end, vehicle):
     distance_cost = distance_heuristic(start, end, vehicle)
     time_cost = time_heuristic(start, end, vehicle)
-    return distance_cost + time_cost
+    return distance_cost + 10*time_cost

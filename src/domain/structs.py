@@ -37,8 +37,8 @@ class Veiculo:
     autonomia_max: float
     autonomia_atual: float
     capacidade_passageiros: int
-    tempo_recarga_abastecimento: int # nao esta no enunciado
-    localizacao: str # no do grafo
+    tempo_recarga_abastecimento: int
+    localizacao: str # nome do nó do grafo
     estado: EstadoVeiculo
     custo_por_km: float
     posicao: tuple[float, float]
@@ -111,8 +111,9 @@ class Veiculo:
         
 
     def atender_pedido(self, mapa, path_origem, path_destino, pedido):
-        print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}, estado= {self.estado}")
+        print(f"Veículo {self.id} a atender pedido {pedido.id} de {pedido.localizacao_origem} para {pedido.localizacao_destino}, estado: {self.estado}")
         print(f"Localizações a percorrer: {[loc.name for loc in path_origem + path_destino]}") 
+        print("\n")
         autonomia_inicio = self.autonomia_atual
 
         # atualiza o tempo de espera se a atribuicao for depois do horario pretendido
@@ -138,14 +139,13 @@ class Veiculo:
 
         pedido.estado = EstadoPedido.CONCLUIDO
         self.estado = EstadoVeiculo.DISPONIVEL
-        print("----------------------------------------------------------------------")
-        print(f"Autonomia antes da viagem: {autonomia_inicio:.2f} | Autonomia após a viagem: {self.autonomia_atual:.2f}")
-        print(f"Veículo {self.id} concluiu pedido {pedido.id}")
-        print("----------------------------------------------------------------------")
+        print(f"Veículo {self.id} concluiu pedido {pedido.id}. Gastou {autonomia_inicio - self.autonomia_atual:.2f} de autonomia.")
+        print("\n")
 
     def abastecer(self, mapa, path):
         print(f"Veículo {self.id} a abastecer/carregar")
-        print(f"Localizações a percorrer: {[loc.name for loc in path]}. autonomia atual: {self.autonomia_atual:.2f}/autonomia max: {self.autonomia_max:.2f}")
+        print(f"Localizações a percorrer: {[loc.name for loc in path]}. autonomia atual: {self.autonomia_atual:.2f}/ {self.autonomia_max:.2f}")
+        print("\n")
         path.pop(0)
         for localizacao in path:
             self.go_to_location(mapa, localizacao)
@@ -160,7 +160,8 @@ class Veiculo:
                 break
             tempo_real_carregamento -= 1
             time.sleep(1)
-        print(f"Veículo {self.id} terminou de abastecer/carregar, autonomia atual: {self.autonomia_atual:.2f}/autonomia max: {self.autonomia_max:.2f}")
+        print(f"Veículo {self.id} terminou de abastecer/carregar, autonomia atual: {self.autonomia_atual:.2f}/ {self.autonomia_max:.2f}")
+        print("\n")
         self.estado = EstadoVeiculo.DISPONIVEL
 
 @dataclass

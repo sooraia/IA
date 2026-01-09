@@ -248,5 +248,6 @@ if __name__ == "__main__":
     print("MÉTRICAS FINAIS:")
     print("=" * 60)
     custo_total = estado.get_custo_total()
+    custo_procura = estado.get_custo_procura()
     print(f"Custo Total (soma): {custo_total:.2f}")
     print("=" * 60)

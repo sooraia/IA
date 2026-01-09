@@ -32,7 +32,7 @@ class Estado:
     tempo_procura: float = 0.0
     tempo_viagem_total: float = 0.0
 
-    max_pedidos = 100
+    max_pedidos = 15
     pedidos_completados = 0
     pedidos_gerados = 0
     distancia_total = 0.0
@@ -77,25 +77,6 @@ class Estado:
                     emissoes_por_km=v_data['emissoes_por_km']
                 )
                 self.veiculos.append(veiculo)
-
-    def calcular_custo(self, pesos: Dict[str, float]) -> float:
-        """
-        Calcula o custo total da solução com base nos pesos fornecidos.
-        C = α*O + β*T + γ*E + δ*D + λ*PR
-        
-        pesos deve conter chaves: 'alpha', 'beta', 'gamma', 'delta', 'lambda'
-        """
-        alpha = pesos.get('alpha', 0.0)
-        beta = pesos.get('beta', 0.0)
-        gamma = pesos.get('gamma', 0.0)
-        delta = pesos.get('delta', 0.0)
-        lam = pesos.get('lambda', 0.0)
-        
-        return (alpha * self.custo_operacional_acumulado +
-                beta * self.tempo_espera_total +
-                gamma * self.emissoes_totais +
-                delta * self.distancia_vazio_total +
-                lam * self.pedidos_rejeitados)
 
     def clone(self) -> 'Estado':
         import copy
@@ -241,8 +222,6 @@ class Estado:
         print("tempo procura:" + str(self.tempo_procura*1000) + " ms reais")
 
         res = str(self.tempo_procura*1000) + ", " + str(self.tempo_viagem_total) + ", " + str(self.distancia_total) + ", " + str(self.nos_caminho) + ", " + str(self.nos_visitados)
-        with open('resultados_procura.txt', 'a') as f:
-            f.write(res + '\n')
 
         return self.nos_visitados + self.nos_caminho + self.tempo_procura
 
@@ -274,7 +253,6 @@ class Estado:
             self.atualizar_estado(algoritmo_procura, heuristica)
             if not self.running: break
             
-        print("Simulation loop ended")
         if self.running:
             while any((pedido.estado != EstadoPedido.CONCLUIDO and pedido.estado != EstadoPedido.REJEITADO) for pedido in self.pedidos):
                 if not self.running: break

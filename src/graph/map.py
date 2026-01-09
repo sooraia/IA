@@ -1,4 +1,3 @@
-# map.py
 from .place import Place, PlaceType
 from src.utils import distancia_euclidiana, distancia_manhattan
 from datetime import datetime
@@ -7,7 +6,7 @@ from src.domain import velocidade_media
 class Map:
     def __init__(self):
         self.places = []
-        self.graph = {}                     # key = objeto Place, valor = lista de tuplos (vizinho, custo)
+        self.graph = {}  # key = objeto Place, valor = lista de tuplos (vizinho, custo)
         self.aresta_info = {}
         self.pontos_recolha = []
         self.postos_abastecimento = []
@@ -79,11 +78,10 @@ class Map:
             print(f"Aviso: nó não encontrado -> {name1}-{name2}")
             return
         
-        # Inverter a lista de cruzamentos para a direção oposta
         cruzamentos_reverse = list(reversed(cruzamentos))
             
         self.graph[p1].append((p2, tipo_zona, cruzamentos))
-        self.graph[p2].append((p1, tipo_zona, cruzamentos_reverse))   # grafo não-direcionado
+        self.graph[p2].append((p1, tipo_zona, cruzamentos_reverse))
 
     def add_place(self, place_type: PlaceType, coord):
         new_place = Place(place_type, coord)
@@ -102,11 +100,11 @@ class Map:
             lista = self.postos_carregamento
 
         new_place.generate_name(seq)
-        new_place.set_id(len(self.places) + 1)   # ID começa em 1
+        new_place.set_id(len(self.places) + 1)
 
         self.places.append(new_place)
         lista.append(new_place)
-        self.graph[new_place] = []               # inicializa lista de vizinhos
+        self.graph[new_place] = []
 
     def posto_mais_proximo(self, origem: str, tipo: PlaceType) -> Place:
         local_origem = self.get_place(origem)
