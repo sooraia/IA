@@ -16,7 +16,6 @@ def greedy_search(map_graph: Map, start_name: str, target_name: str, vehicle, he
     while len(open_list) > 0:
         n = None
 
-        # encontrar o nó na open_list com menor heurística
         for v in open_list:
             if n == None or heuristic(v, target, vehicle) < heuristic(n, target, vehicle):
                 n = v
@@ -27,18 +26,16 @@ def greedy_search(map_graph: Map, start_name: str, target_name: str, vehicle, he
         else:
             visited_count += 1
 
-        # se chegámos ao destino
         if n == target:
             reconst_path = []
-
-            # reconstroi o caminho de tras para a frente
+            
             while parents[n] != n:
                 reconst_path.append(n)
                 n = parents[n]
                 
             reconst_path.append(start)
 
-            reconst_path.reverse() # inverte para ficar Inicio -> Fim
+            reconst_path.reverse()
             
             total_cost = map_graph.calc_total_distance(reconst_path)
             time_taken = process_time() - start_time

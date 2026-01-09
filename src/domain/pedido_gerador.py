@@ -6,35 +6,59 @@ import time
 from src.domain.structs import Pedido, PrioridadePedido, EstadoPedido
 from utils import horaSimuladaAtual
 
-def gerar_pedido_aleatorio(localizacoes: list[str], id_pedido: int) -> Pedido:
-    """Gera um Pedido com valores aleatórios."""
-
+def gerar_pedido_aleatorio(localizacoes: list[str], id_pedido: int, horario_limite=None) -> Pedido:
+    """
+    Gera um Pedido com valores aleatórios.
+    
+    Args:
+        localizacoes: Lista de localizações possíveis
+        id_pedido: ID do pedido
+        janela_temporal: Janela temporal em minutos onde o horário pretendido pode cair (padrão: 60 minutos)
+    """
     origem = random.choice(localizacoes)
     localizacoesDestino = localizacoes.copy()
     localizacoesDestino.remove(origem)
     destino = random.choice(localizacoesDestino)
+    horario_max = horaSimuladaAtual() + datetime.timedelta(minutes=random.randint(0, 30))
+    if horario_limite and horario_max > horario_limite:
+        horario_max = horario_limite
     p = Pedido(
         id=id_pedido,
         localizacao_origem=origem,
         localizacao_destino=destino,
         numero_passageiros=random.randint(1, 4),
         tempo_maximo_espera=datetime.timedelta(minutes=random.randint(5, 30)),
-        horario_pretendido=horaSimuladaAtual() + datetime.timedelta(minutes=random.randint(0, 60)),
+        horario_pretendido=horario_max,
         prioridade=random.choice(list(PrioridadePedido)),
         preferencia_ambiental=random.choice([True, False])
     )
-    return p;
+    return p
 
 # Numa thread
-def gerar_pedidos(localizacoes: list[str], quantidade: int):
-    """Generator que produz pedidos a cada N segundos."""
+def gerar_pedidos(localizacoes: list[str], quantidade: int, janela_temporal: int = 240):
+    """
+    Generator que produz pedidos distribuídos ao longo da janela temporal.
+    
+    Args:
+        localizacoes: Lista de localizações possíveis
+        quantidade: Número de pedidos a gerar
+        janela_temporal: Janela temporal em minutos onde os pedidos devem chegar (padrão: 60 minutos)
+    """
+    horario_inicial = horaSimuladaAtual()
+    horario_limite = horario_inicial + datetime.timedelta(minutes=janela_temporal)
     id_pedido = 0
+    # Converter janela temporal para segundos e dividir pela quantidade de pedidos
+    intervalo_medio = (janela_temporal * 60) / quantidade if quantidade > 0 else 60
+    intervalo_medio_real = intervalo_medio / 144
+    
     while id_pedido < quantidade:
-        intervalo = random.randint(1,3)
-        p = gerar_pedido_aleatorio(localizacoes, id_pedido)
+        # Variação aleatória em torno do intervalo médio (±30%)
+        intervalo = random.uniform(intervalo_medio * 0.7, intervalo_medio * 1.3)
+        p = gerar_pedido_aleatorio(localizacoes, id_pedido, horario_limite)
         yield p  # Devolve pedido e pausa
         id_pedido += 1
-        time.sleep(intervalo)  # Dorme N segundos entre pedidos
+        time.sleep(intervalo_medio_real)  # Dorme N segundos entre pedidos
+
 
 
 def load_pedidos():

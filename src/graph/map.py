@@ -1,12 +1,12 @@
 from .place import Place, PlaceType
-from src.utils import distancia_euclidiana, distancia_manhattan
+from src.utils import distancia_euclidiana
 from datetime import datetime
 from src.domain import velocidade_media
 
 class Map:
     def __init__(self):
         self.places = []
-        self.graph = {}  # key = objeto Place, valor = lista de tuplos (vizinho, custo)
+        self.graph = {}  
         self.aresta_info = {}
         self.pontos_recolha = []
         self.postos_abastecimento = []
@@ -56,7 +56,7 @@ class Map:
             total += self.get_distancia_rota(caminho[i], caminho[i+1])
         return total
     
-    def get_aresta(self, name1: str, name2: str) -> tuple: # (custo, tipo_zona, cruzamentos)
+    def get_aresta(self, name1: str, name2: str) -> tuple: 
         place1 = self.get_place(name1)
         place2 = self.get_place(name2)
         if place1 is None or place2 is None:
@@ -100,11 +100,11 @@ class Map:
             lista = self.postos_carregamento
 
         new_place.generate_name(seq)
-        new_place.set_id(len(self.places) + 1)
+        new_place.set_id(len(self.places) + 1) # ID começa em 1
 
         self.places.append(new_place)
         lista.append(new_place)
-        self.graph[new_place] = []
+        self.graph[new_place] = [] # inicializa lista de vizinhos
 
     def posto_mais_proximo(self, origem: str, tipo: PlaceType) -> Place:
         local_origem = self.get_place(origem)

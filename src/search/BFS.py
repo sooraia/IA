@@ -5,48 +5,38 @@ from search.SearchResult import SearchResult
 
 def bfs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) -> SearchResult:
     start_time = process_time()
-    # Converter as strings em objetos 'Place'
+    
     start = map_graph.get_place(start_name)
     end = map_graph.get_place(end_name)
-    # verificar se os nodos existem no grafo
+    
     if start is None or end is None:
         time_taken = process_time() - start_time
-        return SearchResult(None, 0, 0, time_taken) # nenhum nó visitado
+        return SearchResult(None, 0, 0, time_taken)
     
-    # se o inicio é igual ao fim
     if start == end:
         time_taken = process_time() - start_time
-        return SearchResult([start], 0, 1, time_taken) # apenas o start foi visitado
+        return SearchResult([start], 0, 1, time_taken)
     
-    # criar a fila para guardar os nós que vamos visitar
     queue = deque()
     queue.append([start])
 
-    # guardar o caminho
     visited = set()
     visited.add(start)
 
-    while queue: # enquanto a fila nao estiver vazia
-        # Retira o primeiro caminho da fila (FIFO)
+    while queue: 
         path = queue.popleft()
-        current_node = path[-1] # Último nodo do caminho
-        
-        # Explorar os vizinhos do nodo atual
+        current_node = path[-1]
         for (neighbor, _, _) in map_graph.get_neighbours(current_node):
             if neighbor not in visited:
-                # Criar novo caminho incluindo o vizinho
                 new_path = path + [neighbor]
 
-                # Se chegámos ao destino, retornar o caminho
                 if neighbor == end:
                     total_cost = map_graph.calc_total_distance(new_path)
                     time_taken = process_time() - start_time
                     return SearchResult(new_path, total_cost, len(visited), time_taken)
                 
-                # Adicionar o novo caminho à fila e marcar como visitado
                 queue.append(new_path)
                 visited.add(neighbor)
-    # Se nao encontrou caminho
     time_taken = process_time() - start_time
     return SearchResult(None, 0, len(visited), time_taken)
                 

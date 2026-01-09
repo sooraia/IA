@@ -9,8 +9,3 @@ def distance_heuristic(start, end, vehicle):
 def time_heuristic(start, end, vehicle):
     distance = distancia_manhattan(start, end)
     return distance / velocidade_media
-
-def combined_heuristic(start, end, vehicle):
-    distance_cost = distance_heuristic(start, end, vehicle)
-    time_cost = time_heuristic(start, end, vehicle)
-    return distance_cost + 10*time_cost

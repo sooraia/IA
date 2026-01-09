@@ -23,7 +23,6 @@ from search.UCS import ucs_search
 from search.AStar import a_star_search
 from search.heuristics import distance_heuristic
 from search.heuristics import time_heuristic
-from search.heuristics import combined_heuristic
 from search.iterative import iterative
 from search.Greedy import greedy_search
 
@@ -96,11 +95,11 @@ def build_map():
     map_graph.add_edge("R17", "G5", "Normal", [])
 
     map_graph.add_edge("R18", "G5", "Normal", [(2.55, 1.8)])
-    map_graph.add_edge("R18", "R9", "Normal", [(2.7, 1.4), (2.55, 1.8)])
+    map_graph.add_edge("R18", "R9", "Normal", [(2.55, 1.8)])
     map_graph.add_edge("R18", "R19", "Old town", [])
 
     map_graph.add_edge("E3", "R19", "Old town", [])
-    map_graph.add_edge("E3", "R15", "Old town", [(4.39, 1.1), (5.4, 1.75), (6.0, 2.8)])
+    map_graph.add_edge("E3", "R15", "Old town", [(4.39, 1.1), (5.4, 1.75), (5.65, 2.35), (6.0, 2.8)])
     map_graph.add_edge("E3", "R20", "Old town", [])
 
     map_graph.add_edge("R20", "R21", "Old town", [(6.55, 0.95)])
@@ -241,7 +240,7 @@ if __name__ == "__main__":
     print("=" * 60 + "\n")
     
     # Executar simulação de forma síncrona (bloqueia até terminar)
-    estado.run(algoritmo, distance_heuristic)
+    estado.run(algoritmo, time_heuristic)
     
     # Apresentar métricas finais (get_custo_total já imprime as métricas detalhadas)
     print("\n" + "=" * 60)

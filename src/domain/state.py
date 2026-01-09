@@ -258,3 +258,5 @@ class Estado:
                 if not self.running: break
                 pass
             self.get_custo_total()
+
+        
