@@ -3,7 +3,7 @@ from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
 
-def bfs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) -> SearchResult:
+def bfs_search(map_graph: Map, start_name: str, end_name: str, *args) -> SearchResult:
     start_time = process_time()
     
     start = map_graph.get_place(start_name)

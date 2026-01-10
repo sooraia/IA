@@ -1,7 +1,7 @@
 from .place import Place, PlaceType
-from src.utils import distancia_euclidiana
+from utils import distancia_euclidiana
 from datetime import datetime
-from src.domain import velocidade_media
+from domain import velocidade_media
 
 class Map:
     def __init__(self):

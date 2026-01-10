@@ -2,7 +2,7 @@ from time import process_time
 from graph.map import Map
 from search.SearchResult import SearchResult
 
-def greedy_search(map_graph: Map, start_name: str, target_name: str, vehicle, heuristic) -> SearchResult:
+def greedy_search(map_graph: Map, start_name: str, target_name: str, heuristic) -> SearchResult:
     start_time = process_time()
     start = map_graph.get_place(start_name)
     target = map_graph.get_place(target_name)
@@ -17,7 +17,7 @@ def greedy_search(map_graph: Map, start_name: str, target_name: str, vehicle, he
         n = None
 
         for v in open_list:
-            if n == None or heuristic(v, target, vehicle) < heuristic(n, target, vehicle):
+            if n == None or heuristic(v, target) < heuristic(n, target):
                 n = v
         
         if n == None:

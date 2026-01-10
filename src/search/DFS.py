@@ -1,8 +1,8 @@
 from graph.map import Map
 from time import process_time
-from src.search.SearchResult import SearchResult
+from search.SearchResult import SearchResult
 
-def dfs_search(map_graph : Map, start_node_name, target_node_name, *args, **kwargs) -> SearchResult:
+def dfs_search(map_graph : Map, start_node_name, target_node_name, *args) -> SearchResult:
     start_time = process_time()
     
     start_node = map_graph.get_place(start_node_name)

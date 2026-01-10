@@ -1,37 +1,20 @@
-"""
-Módulo principal da simulação (sem interface gráfica).
-Executar com: python3 src/main.py
-
-Para a versão com interface gráfica, usar: ./venv/bin/python src/main_gui.py
-"""
 import sys
-import os
 import datetime
-
-# Adicionar a raiz do projeto ao sys.path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils import set_hora_real_inicial
 from domain.state import Estado
 from graph.map import Map
-from graph.place import Place, PlaceType
-from search.heuristics import distance_heuristic
+from graph.place import PlaceType
 from search.iterative import iterative
 from search.BFS import bfs_search
 from search.DFS import dfs_search
 from search.UCS import ucs_search
 from search.AStar import a_star_search
-from search.heuristics import distance_heuristic
 from search.heuristics import time_heuristic
 from search.iterative import iterative
 from search.Greedy import greedy_search
 
-
 def build_map():
-    """
-    Constrói o mapa da cidade com todos os pontos e ligações.
-    Retorna uma instância de Map com o grafo completo.
-    """
     map_graph = Map()
     N_PONTOS_RECOLHA = 21
     N_POSTOS_ABASTECIMENTO = 6
@@ -174,30 +157,25 @@ def build_map():
 
 
 def selecionar_algoritmo():
-    """
-    Apresenta um menu interativo para o utilizador escolher o algoritmo de procura.
-    Retorna uma tupla com (função_algoritmo, nome_algoritmo).
-    """
-    # Dicionário com os algoritmos disponíveis
     algoritmos = {
-        '1': (bfs_search, 'BFS (Pesquisa em Largura)'),
-        '2': (dfs_search, 'DFS (Pesquisa em Profundidade)'),
-        '3': (ucs_search, 'UCS (Pesquisa de Custo Uniforme)'),
+        '1': (bfs_search, 'BFS (Procura em Largura)'),
+        '2': (dfs_search, 'DFS (Procura em Profundidade)'),
+        '3': (ucs_search, 'UCS (Procura de Custo Uniforme)'),
         '4': (a_star_search, 'A* (A-Estrela)'),
-        '5': (greedy_search, 'Greedy (Pesquisa Gulosa)'),
-        '6': (iterative, 'Iterative Deepening (Aprofundamento Iterativo)'),
+        '5': (greedy_search, 'Greedy (Procura Gulosa)'),
+        '6': (iterative, 'Iterative (Aprofundamento Iterativo)'),
     }
     
-    print("\n" + "=" * 60)
+    print("\n" + "==================================================")
     print("        SELECIONAR ALGORITMO DE PROCURA")
-    print("=" * 60)
-    print("  [1] BFS  - Pesquisa em Largura")
-    print("  [2] DFS  - Pesquisa em Profundidade")
-    print("  [3] UCS  - Pesquisa de Custo Uniforme")
+    print("==================================================")
+    print("  [1] BFS  - Procura em Largura")
+    print("  [2] DFS  - Procura em Profundidade")
+    print("  [3] UCS  - Procura de Custo Uniforme")
     print("  [4] A*   - A-Estrela")
-    print("  [5] Greedy - Pesquisa Gulosa")
-    print("  [6] Iterative Deepening - Aprofundamento Iterativo")
-    print("=" * 60)
+    print("  [5] Greedy - Procura Gulosa")
+    print("  [6] Iterative - Aprofundamento Iterativo")
+    print("==================================================")
     
     while True:
         escolha = input("\nEscolha o algoritmo [1-6] (ou 'q' para sair): ").strip().lower()
@@ -214,23 +192,10 @@ def selecionar_algoritmo():
             print("Opção inválida. Por favor, escolha entre 1 e 6.")
 
 
-if __name__ == "__main__":
-    """
-    Ponto de entrada principal para a simulação SEM interface gráfica.
-    Executar com: python3 src/main.py
-    
-    Para a versão com interface gráfica, usar: ./venv/bin/python src/main_gui.py
-    """
-    # Construir o mapa da cidade
+def main():
     map_graph_instance = build_map()
-    
-    # Definir a hora inicial da simulação
     set_hora_real_inicial(datetime.datetime.now())
-    
-    # Criar o estado inicial da simulação
     estado = Estado(map_graph_instance)
-    
-    # Permitir ao utilizador escolher o algoritmo
     algoritmo, nome_algoritmo = selecionar_algoritmo()
     
     print("\n" + "=" * 60)
@@ -238,11 +203,9 @@ if __name__ == "__main__":
     print("=" * 60)
     print(f"Algoritmo: {nome_algoritmo}")
     print("=" * 60 + "\n")
-    
-    # Executar simulação de forma síncrona (bloqueia até terminar)
+
     estado.run(algoritmo, time_heuristic)
     
-    # Apresentar métricas finais (get_custo_total já imprime as métricas detalhadas)
     print("\n" + "=" * 60)
     print("MÉTRICAS FINAIS:")
     print("=" * 60)
@@ -250,3 +213,6 @@ if __name__ == "__main__":
     custo_procura = estado.get_custo_procura()
     print(f"Custo Total (soma): {custo_total:.2f}")
     print("=" * 60)
+
+if __name__ == "__main__":
+    main()

@@ -3,7 +3,7 @@ from graph.map import Map
 from search.SearchResult import SearchResult
 from utils import horaSimuladaAtual
 
-def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_func) -> SearchResult:
+def a_star_search(map_graph: Map, start_name, target_name, heuristic_func) -> SearchResult:
     start_time = process_time()
 
     hora_atual = horaSimuladaAtual()
@@ -24,11 +24,10 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
         n = None
         
         for v in open_list:
-            if n == None or g[v] + heuristic_func(v, target, vehicle) < g[n] + heuristic_func(n, target, vehicle):
+            if n == None or g[v] + heuristic_func(v, target) < g[n] + heuristic_func(n, target):
                 n = v
                 
         if n == None:
-            print("Path does not exist!")
             time_taken = process_time() - start_time
             return SearchResult(None, 0, visited, time_taken)
         else:
@@ -69,6 +68,5 @@ def a_star_search(map_graph: Map, start_name, target_name, vehicle, heuristic_fu
         open_list.remove(n)
         closed_list.add(n)
 
-    print('Caminho não existe!')
     time_taken = process_time() - start_time
     return SearchResult(None, 0, visited, time_taken)

@@ -1,7 +1,6 @@
 from time import process_time
-from graph.map import Map, Place, PlaceType
+from graph.map import Map
 from search.SearchResult import SearchResult
-from src.utils import horaSimuladaAtual
 
 # procura em profundidade com limite de profundidade
 def dfs_depth(map_graph: Map, start_name: str, target_name: str, max_depth: int, path=None, visited=None, visitedCount=None, current_depth=0, distance_atual=0) -> SearchResult:
@@ -12,7 +11,6 @@ def dfs_depth(map_graph: Map, start_name: str, target_name: str, max_depth: int,
     if visitedCount is None:
         visitedCount=[0]
 
-    # limite de profundidade
     if max_depth < 0 or current_depth >= max_depth:
         return SearchResult(None, 0, visitedCount[0], 0)
 
@@ -57,7 +55,7 @@ def dfs_depth(map_graph: Map, start_name: str, target_name: str, max_depth: int,
     return SearchResult(None, 0, visitedCount[0], 0)
 
 # procura iterativa em profundidade
-def iterative(map_graph: Map, start_name: str, target_name: str, *args, **kwargs) -> SearchResult:
+def iterative(map_graph: Map, start_name: str, target_name: str, *args) -> SearchResult:
     total_nodes = len(map_graph.places) #(máximo de profundidade - n-1 arestas)
     start = process_time()
     max_depth = 0

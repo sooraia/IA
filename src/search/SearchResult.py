@@ -1,5 +1,3 @@
-
-
 class SearchResult:
     path: list
     distance: float

@@ -1,10 +1,9 @@
 import pygame
-import os
 import math
-from src.graph.map import Map
-from src.graph.place import PlaceType
-from src.domain.structs import EstadoVeiculo, TipoVeiculo
-from src.utils import horaSimuladaAtual
+from graph.map import Map
+from graph.place import PlaceType
+from domain.structs import EstadoVeiculo, TipoVeiculo
+from utils import horaSimuladaAtual
 
 LARGURA_ECRA = 800
 ALTURA_ECRA = 800
@@ -38,25 +37,21 @@ class Visualizer:
         self.car_ev_img = None
         self.bg_img = None
         
-        gui_path = os.path.dirname(os.path.abspath(__file__))
-        car_path = os.path.join(gui_path, "car.png")
-        car_ev_path = os.path.join(gui_path, "carEV.png")
-        map_path = os.path.join(gui_path, "map.jpeg")
+        car_path = 'gui/car.png'
+        car_ev_path = 'gui/carEV.png'
+        map_path = 'gui/map.jpeg'
 
-        try:
-            if os.path.exists(car_path):
-                raw_car = pygame.image.load(car_path)
-                self.car_img = pygame.transform.scale(raw_car, (40, 20))
-            
-            if os.path.exists(car_ev_path):
-                raw_car_ev = pygame.image.load(car_ev_path)
-                self.car_ev_img = pygame.transform.scale(raw_car_ev, (40, 20))
-            
-            if os.path.exists(map_path):
-                self.bg_img = pygame.image.load(map_path)
-                self.bg_img = pygame.transform.scale(self.bg_img, (LARGURA_ECRA, ALTURA_ECRA))
-        except Exception as e:
-            print(f"Erro ao carregar imagens: {e}")
+        if (car_path):
+            raw_car = pygame.image.load(car_path)
+            self.car_img = pygame.transform.scale(raw_car, (40, 20))
+        
+        if (car_ev_path):
+            raw_car_ev = pygame.image.load(car_ev_path)
+            self.car_ev_img = pygame.transform.scale(raw_car_ev, (40, 20))
+        
+        if (map_path):
+            self.bg_img = pygame.image.load(map_path)
+            self.bg_img = pygame.transform.scale(self.bg_img, (LARGURA_ECRA, ALTURA_ECRA))
 
     def transform_coord(self, coord):
         x, y = coord

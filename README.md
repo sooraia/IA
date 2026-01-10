@@ -1,42 +1,23 @@
-# TaxiGreen AI
+# IA-G8
 
-Este projeto simula uma frota de táxis elétricos autónomos utilizando vários algoritmos de pesquisa de IA. Inclui um visualizador para monitorizar a simulação e depurar algoritmos de procura de caminhos.
+Grupo 8:
+* Juliana Sofia Vaz da Silva, a105572
+* Sofia Beatriz Miranda Couto, a106925
+* Soraia Filipa Ribeiro Pereira, a106806
+* Tiago Ferreira Soares, a97381
 
 ## Pré-requisitos
 
 - Python 3.x
-- Pygame (instalado no ambiente virtual)
+- Pygame
 
-## Configuração
-
-Um ambiente virtual (`venv`) já foi criado na raiz do projeto.
-
-## Executar a Aplicação
-
-Para correr a simulação com o visualizador GUI, execute o seguinte comando a partir da raiz do projeto:
-
-```bash
-./venv/bin/python src/main.py
+## Setup
+Para executar o programa sem interface gráfica:
+```
+python3 -m main
 ```
 
-### Controlos da GUI
-
-- **Simulação**: A simulação corre automaticamente em segundo plano. Os veículos (carros) aparecerão no mapa a atender pedidos.
-- **Reiniciar**: Pressione **`R`** para reiniciar a simulação.
-- **Visualização de Pesquisa Manual**: Pressione as seguintes teclas para visualizar algoritmos de procura específicos sobre o mapa:
-  - **`U`**: Pesquisa de Custo Uniforme (UCS)
-  - **`B`**: Pesquisa em Largura (BFS)
-  - **`D`**: Pesquisa em Profundidade (DFS)
-  - **`A`**: Pesquisa A*
-  - **`G`**: Pesquisa Gulosa (Greedy)
-  - **`I`**: Aprofundamento Iterativo
-  - **`F`**: DFS Iterativo
-- **Sair**: Pressione **`ESC`** ou feche a janela.
-
-## Estrutura do Projeto
-
-- `src/domain/` – Representações de estado para veículos, pedidos, mapas.
-- `src/search/` – Algoritmos de pesquisa (UCS, A*, BFS, DFS, etc.).
-- `src/gui/` – Lógica de visualização utilizando Pygame.
-- `src/data/` – Ficheiros de configuração (ex: definições de veículos).
-- `src/main.py` – Ponto de entrada da aplicação.
+Para executar o programa com interface gráfica:
+```
+python3 -m main_gui
+```

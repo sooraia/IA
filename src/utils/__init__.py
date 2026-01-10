@@ -1,14 +1,10 @@
 
 import datetime
-from time import time
 
 hora_real_inicial = datetime.datetime.now()
 
 def distancia_manhattan(place1, place2):
     return abs(place1.coord[0] - place2.coord[0]) + abs(place1.coord[1] - place2.coord[1])
-
-# def distancia_euclidiana(place1, place2):
-#     return ((place1.coord[0] - place2.coord[0])**2 + (place1.coord[1] - place2.coord[1])**2) ** (1/2)
 
 def distancia_euclidiana(x1, y1, x2, y2):
     return ((x1- x2)**2 + (y1 - y2)**2) ** (1/2)

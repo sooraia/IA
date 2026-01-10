@@ -1,9 +1,8 @@
 import json
-import os
 import random
 import datetime
 import time
-from src.domain.structs import Pedido, PrioridadePedido, EstadoPedido
+from domain.structs import Pedido, PrioridadePedido
 from utils import horaSimuladaAtual
 
 def gerar_pedido_aleatorio(localizacoes: list[str], id_pedido: int, horario_limite=None) -> Pedido:
@@ -63,9 +62,7 @@ def gerar_pedidos(localizacoes: list[str], quantidade: int, janela_temporal: int
 
 def load_pedidos():
     pedidos = []
-    base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    file_path = os.path.join(base_path, 'data', 'pedidos.json')
-    with open(file_path, 'r') as f:
+    with open('data/pedidos.json', 'r') as f:
         pedidos_data = json.load(f)
         for p_data in pedidos_data["pedidos"]:
             pedido = Pedido(

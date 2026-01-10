@@ -1,9 +1,6 @@
 import sys
-import os
 import datetime
 import threading
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils import set_hora_real_inicial
 from domain.state import Estado
@@ -25,19 +22,19 @@ def selecionar_algoritmo():
         '3': (ucs_search, 'UCS (Pesquisa de Custo Uniforme)'),
         '4': (a_star_search, 'A* (A-Estrela)'),
         '5': (greedy_search, 'Greedy (Pesquisa Gulosa)'),
-        '6': (iterative, 'Iterative Deepening (Aprofundamento Iterativo)'),
+        '6': (iterative, 'Iterative (Aprofundamento Iterativo)'),
     }
     
-    print("\n" + "=" * 60)
+    print("\n" + "==================================================")
     print("        SELECIONAR ALGORITMO DE PROCURA")
-    print("=" * 60)
-    print("  [1] BFS  - Pesquisa em Largura")
-    print("  [2] DFS  - Pesquisa em Profundidade")
-    print("  [3] UCS  - Pesquisa de Custo Uniforme")
+    print("==================================================")
+    print("  [1] BFS  - Procura em Largura")
+    print("  [2] DFS  - Procura em Profundidade")
+    print("  [3] UCS  - Procura de Custo Uniforme")
     print("  [4] A*   - A-Estrela")
-    print("  [5] Greedy - Pesquisa Gulosa")
-    print("  [6] Iterative Deepening - Aprofundamento Iterativo")
-    print("=" * 60)
+    print("  [5] Greedy - Procura Gulosa")
+    print("  [6] Iterative - Aprofundamento Iterativo")
+    print("==================================================")
     
     while True:
         escolha = input("\nEscolha o algoritmo [1-6] (ou 'q' para sair): ").strip().lower()

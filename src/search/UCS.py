@@ -4,7 +4,7 @@ from graph.map import Map
 from search.SearchResult import SearchResult
 from utils import horaSimuladaAtual
 
-def ucs_search(map_graph: Map, start_name: str, end_name: str, *args, **kwargs) -> SearchResult:
+def ucs_search(map_graph: Map, start_name: str, end_name: str, *args) -> SearchResult:
     start_time = process_time()
 
     hora_atual = horaSimuladaAtual()

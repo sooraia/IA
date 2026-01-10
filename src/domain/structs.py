@@ -3,10 +3,9 @@ import datetime
 import time
 from enum import Enum
 
-from src.graph.place import Place
-from src.graph.map import Map
-from src.utils import horaSimuladaAtual, distancia_euclidiana
-from src.domain import velocidade_media
+from graph.place import Place
+from utils import horaSimuladaAtual, distancia_euclidiana
+from domain import velocidade_media
 
 class TipoVeiculo(Enum):
     ELETRICO = "eletrico"

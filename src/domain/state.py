@@ -1,16 +1,14 @@
 from dataclasses import dataclass
 import threading
-from time import sleep
-from typing import List, Dict, Optional
-from src.domain.pedido_gerador import gerar_pedidos, gerar_pedidos_data
-from src.domain.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, EstadoPedido, velocidade_media
-from src.search import SearchResult
-from src.utils import distancia_manhattan, distancia_euclidiana
+from typing import List
+from domain.pedido_gerador import gerar_pedidos
+from domain.structs import Veiculo, Pedido, TipoVeiculo, EstadoVeiculo, EstadoPedido, velocidade_media
+from search import SearchResult
+from utils import distancia_manhattan, distancia_euclidiana
 from threading import Thread
 from graph.map import Map
 from graph.place import Place, PlaceType
 import json
-import os
 
 @dataclass
 class Estado:
@@ -58,9 +56,7 @@ class Estado:
         self.load_veiculos()
 
     def load_veiculos(self):
-        base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        file_path = os.path.join(base_path, 'data', 'veiculos.json')
-        with open(file_path, 'r') as f:
+        with open('data/veiculos.json', 'r') as f:
             veiculos_data = json.load(f)
             for v_data in veiculos_data["veiculos"]:
                 veiculo = Veiculo(
@@ -169,8 +165,8 @@ class Estado:
                     veiculos_possiveis.sort(key = lambda v: self.heuristica_atribuicao_pedidos(v, pedido))
 
                     for veiculo in veiculos_possiveis:
-                        r1 = algoritmo_procura(self.mapa, veiculo.localizacao, pedido.localizacao_destino, veiculo, heuristica) # rota local atual -> local origem pedido
-                        r2 = algoritmo_procura(self.mapa, pedido.localizacao_destino, pedido.localizacao_origem, veiculo, heuristica) # rota local origem pedido -> local destino pedido
+                        r1 = algoritmo_procura(self.mapa, veiculo.localizacao, pedido.localizacao_destino, heuristica) # rota local atual -> local origem pedido
+                        r2 = algoritmo_procura(self.mapa, pedido.localizacao_destino, pedido.localizacao_origem, heuristica) # rota local origem pedido -> local destino pedido
 
                         if r1 is not None and r2 is not None:
                             # autonomia de reserva estimada necessaria para deslocação para estacao de recarga após atendimento do pedido
@@ -194,7 +190,7 @@ class Estado:
                     print(f"Etsado: {veiculo.estado}")
                     estacao = self.posto_mais_proximo(veiculo.tipo, veiculo.localizacao)
                     print(f"Veículo {veiculo.id} a caminho do posto de recarga/abastecimento em {estacao.name}")
-                    results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao.name, veiculo, heuristica)
+                    results = algoritmo_procura(self.mapa, veiculo.localizacao, estacao.name, heuristica)
                     if results.path is None:
                         print(f"Veículo {veiculo.id} não conseguiu encontrar rota para posto de recarga/abastecimento.")
                     if results is not None and results.path is not None:
