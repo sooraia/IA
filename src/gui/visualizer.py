@@ -1,19 +1,19 @@
 import pygame
 import os
 import math
-from src.graph.map import Map
-from src.graph.place import PlaceType
-from src.domain.structs import EstadoVeiculo, TipoVeiculo
-from src.utils import horaSimuladaAtual
+from graph.map import Map
+from graph.place import PlaceType
+from domain.structs import EstadoVeiculo, TipoVeiculo
+from utils import horaSimuladaAtual
 
 LARGURA_ECRA = 800
 ALTURA_ECRA = 800
 
 COR_FUNDO = (255, 255, 255)
 RAIO_NO = 15
-COR_RECOLHA = (100, 100, 255)
-COR_ABASTECIMENTO = (100, 255, 100)
-COR_CARREGAMENTO = (255, 165, 0)
+COR_RECOLHA = (150, 180, 250)
+COR_ABASTECIMENTO = (160, 230, 160)
+COR_CARREGAMENTO = (255, 210, 140)
 COR_PADRAO = (200, 200, 200)
 COR_TEXTO = (0, 0, 0)
 LARGURA_ESTRADA = 8
