@@ -3,8 +3,8 @@ import os
 import math
 from graph.map import Map
 from graph.place import PlaceType
-from domain.structs import EstadoVeiculo, TipoVeiculo
-from utils import horaSimuladaAtual
+from src.domain.structs import EstadoVeiculo, TipoVeiculo
+from src.utils import horaSimuladaAtual
 
 LARGURA_ECRA = 800
 ALTURA_ECRA = 800
