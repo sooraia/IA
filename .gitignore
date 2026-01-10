@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.env/
+env/
+venv/
+.venv/
+
+# Pyre / MyPy / Pytest caches
+.pyre/
+.mypy_cache/
+.pytest_cache/
+
+# Distribution artifacts
+build/
+dist/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
